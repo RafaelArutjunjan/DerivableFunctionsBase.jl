@@ -1,0 +1,13 @@
+name = "DerivableFunctionsBase"
+uuid = "2a74400c-0885-457e-a858-e4f63fac11e2"
+authors = ["Rafael Arutjunjan"]
+version = "0.1.0"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[compat]
+julia = "1.6"
+
+[targets]
+test = ["Test"]

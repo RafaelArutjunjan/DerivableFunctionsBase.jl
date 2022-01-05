@@ -20,5 +20,5 @@ makedocs(;
 
 deploydocs(;
     repo="github.com/RafaelArutjunjan/DerivableFunctionsBase.jl",
-    devbranch="master",
+    devbranch="main",
 )

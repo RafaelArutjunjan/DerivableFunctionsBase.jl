@@ -1,12 +1,10 @@
 
 
-# global DIFF_BACKENDS = [:Symbolic, :ForwardDiff, :FiniteDifferences]
-# SetDiff(x) = (global DIFF_BACKENDS = x)
-# diff_backends() = DIFF_BACKENDS
 """
-Available differentiation backends. Further backends are implemented in `DerivableFunctions.jl`
+Shows the differentation backends available for use with `DerivableFunctions.jl`.
 """
-diff_backends() = [:Symbolic, :ForwardDiff, :FiniteDifferences]
+diff_backends() = vcat([:Symbolic, :ForwardDiff, :FiniteDifferences], AddedBackEnds(Val(length(methods(AddedBackEnds)) > 1)))
+AddedBackEnds(::Val{false}) = Symbol[]
 
 
 

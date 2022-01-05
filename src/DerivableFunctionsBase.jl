@@ -2,7 +2,7 @@ module DerivableFunctionsBase
 
 
 using ForwardDiff, FiniteDifferences
-using ModelingToolkit # To avoid error thrown in _array_for() when using Symbolics.jacobian()
+using OffsetArrays # To avoid error thrown in _array_for() when using Symbolics.jacobian()
 using Symbolics
 
 

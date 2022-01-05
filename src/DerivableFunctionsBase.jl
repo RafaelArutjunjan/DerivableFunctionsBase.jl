@@ -1,9 +1,13 @@
 module DerivableFunctionsBase
 
-using DataFrames
+
 using ForwardDiff, FiniteDifferences
 using ModelingToolkit # To avoid error thrown in _array_for() when using Symbolics.jacobian()
 using Symbolics
+
+
+# Add graceful errors by implementing _GetGrad(::Val) methods
+# Implement FiniteDiff in addition to FiniteDifferences
 
 
 include("Utils.jl")

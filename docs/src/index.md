@@ -6,7 +6,7 @@ CurrentModule = DerivableFunctionsBase
 
 Documentation for [DerivableFunctionsBase](https://github.com/RafaelArutjunjan/DerivableFunctionsBase.jl).
 
-**This package provides the base functionality of** [**DerivableFunctions**](https://github.com/RafaelArutjunjan/DerivableFunctions.jl) **without loading all the backends, i.e. only for** [**ForwardDiff.jl**](https://github.com/JuliaDiff/ForwardDiff.jl)
+**This package provides the base functionality of** [**DerivableFunctions**](https://github.com/RafaelArutjunjan/DerivableFunctions.jl) **without loading all the backends, i.e. only for** [**ForwardDiff.jl**](https://github.com/JuliaDiff/ForwardDiff.jl) **and** [**FiniteDifferences.jl**](https://github.com/JuliaDiff/FiniteDifferences.jl)**.**
 
 ```@index
 ```

@@ -1,5 +1,5 @@
 
-using DerivableFunctions, Test, Symbolics
+using DerivableFunctionsBase, Test, Symbolics
 function CreateVariable(i::Int)
     i == -1 && return (@variables z)[1]
     (@variables z[1:i])[1]

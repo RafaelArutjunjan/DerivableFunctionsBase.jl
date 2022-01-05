@@ -3,11 +3,23 @@ uuid = "2a74400c-0885-457e-a858-e4f63fac11e2"
 authors = ["Rafael Arutjunjan"]
 version = "0.1.0"
 
-[extras]
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+[deps]
+FiniteDifferences = "26cc04aa-876d-5657-8c51-4c34ba976000"
+ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
+ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78"
+Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
 
 [compat]
-julia = "1.6"
+FiniteDifferences = "0.11, 0.12"
+ForwardDiff = "0.10"
+ModelingToolkit = "5 - 8"
+Symbolics = "2 - 4"
+julia = "1"
+
+[extras]
+RuntimeGeneratedFunctions = "7e49a35a-f44a-4d26-94aa-eba1b4ca6b47"
+SafeTestsets = "1bc83da4-3b8d-516f-aca4-4fe02f6d838f"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test"]
+test = ["Test", "SafeTestsets", "RuntimeGeneratedFunctions"]

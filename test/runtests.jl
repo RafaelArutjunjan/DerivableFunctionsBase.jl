@@ -2,7 +2,7 @@
 using SafeTestsets
 
 @safetestset "Bare Differentiation Operator Backends (out-of-place)" begin
-    using DerivableFunctions, Test, ForwardDiff
+    using DerivableFunctionsBase, Test, ForwardDiff
     Metric3(x) = [sinh(x[3]) exp(x[1])*sin(x[2]) 0; 0 cosh(x[2]) cos(x[2])*x[3]*x[2]; exp(x[2]) cos(x[3])*x[1]*x[2] 1.]
 
     X = ForwardDiff.gradient(x->x[1]^2 + exp(x[2]), [5,10.])
@@ -21,7 +21,7 @@ using SafeTestsets
         @test maximum(abs.(MatrixJac(Metric3, [5,10,15.]) - Mat)) < 1e-5
     end
 
-    for ADmode ∈ [:ForwardDiff, :Zygote, :ReverseDiff, :FiniteDiff]
+    for ADmode ∈ [:ForwardDiff, :FiniteDifferences]
         MyTest(ADmode)
     end
 
@@ -31,15 +31,13 @@ using SafeTestsets
         maximum(abs.(DoubleJac(x->[exp(x[1])*sin(x[2]), cosh(x[2])*x[1]*x[2]], [5,10.]) - Djac)) < 1e-5
     end
 
-    for ADmode ∈ [:ForwardDiff, :ReverseDiff, :FiniteDiff]
+    for ADmode ∈ [:ForwardDiff, :FiniteDifferences]
         @test TestDoubleJac(ADmode)
     end
-    # Zygote does not support mutating arrays
-    @test_broken TestDoubleJac(:Zygote)
 end
 
 @safetestset "Bare Differentiation Operator Backends (in-place)" begin
-    using DerivableFunctions, Test, ForwardDiff
+    using DerivableFunctionsBase, Test, ForwardDiff
     Metric3(x) = [sinh(x[3]) exp(x[1])*sin(x[2]) 0; 0 cosh(x[2]) cos(x[2])*x[3]*x[2]; exp(x[2]) cos(x[3])*x[1]*x[2] 1.]
 
     X = ForwardDiff.gradient(x->x[1]^2 + exp(x[2]), [5,10.])
@@ -61,7 +59,7 @@ end
         MatrixJac!(Matres, [5,10,15.]);   @test maximum(abs.(Matres - Mat)) < 1e-5
     end
 
-    for ADmode ∈ [:ForwardDiff, :Zygote, :ReverseDiff, :FiniteDiff]
+    for ADmode ∈ [:ForwardDiff, :FiniteDifferences]
         MyInplaceTest(ADmode)
     end
 end
@@ -73,7 +71,7 @@ end
 
 
 @safetestset "DFunctions with symbolic derivatives (out-of-place)" begin
-    using DerivableFunctions, Test, RuntimeGeneratedFunctions
+    using DerivableFunctionsBase, Test, RuntimeGeneratedFunctions
 
     F1(x) = x^2
     F2(x) = [exp(x), log(5sinh(x))]
@@ -127,8 +125,8 @@ end
 end
 
 @safetestset "Function Structure Inference" begin
-    using DerivableFunctions, Test
-    import DerivableFunctions: GetInOut, FindSubHyperCube
+    using DerivableFunctionsBase, Test
+    import DerivableFunctionsBase: GetInOut, FindSubHyperCube
 
     # Out-of-place
     F1(x) = x^2

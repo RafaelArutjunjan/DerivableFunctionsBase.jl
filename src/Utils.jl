@@ -10,14 +10,12 @@ suff(x::Real) = Float64
 suff(x::Complex) = suff(real(x))
 suff(x::AbstractArray) = suff(x[1])
 suff(x::Tuple) = suff(x...)
-suff(x::DataFrame) = suff(x[1,1])
 suff(x::Union{Nothing, Missing}) = Float64
 suff(args...) = try suff(promote(args...)[1]) catch;  suff(args[1]) end
 
 suff(x::Num) = Num
 # Allow for differentiation through suff arrays.
 suff(x::ForwardDiff.Dual) = typeof(x)
-suff(x::ReverseDiff.TrackedReal) = typeof(x)
 
 
 """
@@ -34,7 +32,7 @@ This is achieved by successively evaluating the function on `rand(i)` until the 
 As a result, `GetArgLength` will be unable to determine the correct input structure if `F` errors on `rand(i)`.
 !!! note
     Does NOT discriminate between `Real` and `Vector{Real}` of length one, i.e. `Real`↦`+1`.
-    To disciminate between these two options, use `DerivableFunctions._GetArgLength` instead.
+    To disciminate between these two options, use `_GetArgLength()` instead.
 """
 GetArgLength(F::Function; max::Int=100) = _GetArgLength(F; max=max) |> abs
 

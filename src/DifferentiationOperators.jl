@@ -1,5 +1,12 @@
 
-diff_backends() = [:Symbolic, :ForwardDiff, :ReverseDiff, :Zygote, :FiniteDiff]
+
+# global DIFF_BACKENDS = [:Symbolic, :ForwardDiff, :FiniteDifferences]
+# SetDiff(x) = (global DIFF_BACKENDS = x)
+# diff_backends() = DIFF_BACKENDS
+"""
+Available differentiation backends. Further backends are implemented in `DerivableFunctions.jl`
+"""
+diff_backends() = [:Symbolic, :ForwardDiff, :FiniteDifferences]
 
 
 
@@ -215,18 +222,10 @@ _GetGrad(ADmode::Val{:ForwardDiff}; kwargs...) = ForwardDiff.gradient
 _GetJac(ADmode::Val{:ForwardDiff}; kwargs...) = ForwardDiff.jacobian
 _GetHess(ADmode::Val{:ForwardDiff}; kwargs...) = ForwardDiff.hessian
 
-# Deriv not available for ReverseDiff
-_GetGrad(ADmode::Val{:ReverseDiff}; kwargs...) = ReverseDiff.gradient
-_GetJac(ADmode::Val{:ReverseDiff}; kwargs...) = ReverseDiff.jacobian
-_GetHess(ADmode::Val{:ReverseDiff}; kwargs...) = ReverseDiff.hessian
-# Deriv not available for Zygote
-_GetGrad(ADmode::Val{:Zygote}; order::Int=-1, kwargs...) = (Func::Function,p;Kwargs...) -> Zygote.gradient(Func, p; kwargs...)[1]
-_GetJac(ADmode::Val{:Zygote}; order::Int=-1, kwargs...) = (Func::Function,p;Kwargs...) -> Zygote.jacobian(Func, p; kwargs...)[1]
-_GetHess(ADmode::Val{:Zygote}; order::Int=-1, kwargs...) = (Func::Function,p;Kwargs...) -> Zygote.hessian(Func, p; kwargs...)
-# Deriv not available for FiniteDifferences
-_GetGrad(ADmode::Union{<:Val{:FiniteDiff},<:Val{:FiniteDifferences}}; order::Int=3, kwargs...) = (Func::Function,p;Kwargs...) -> FiniteDifferences.grad(central_fdm(order,1), Func, p; kwargs...)[1]
-_GetJac(ADmode::Union{<:Val{:FiniteDiff},<:Val{:FiniteDifferences}}; order::Int=3, kwargs...) = (Func::Function,p;Kwargs...) -> FiniteDifferences.jacobian(central_fdm(order,1), Func, p; kwargs...)[1]
-_GetHess(ADmode::Union{<:Val{:FiniteDiff},<:Val{:FiniteDifferences}}; order::Int=5, kwargs...) = (Func::Function,p;Kwargs...) -> FiniteDifferences.jacobian(central_fdm(order,1), z->FiniteDifferences.grad(central_fdm(order,1), Func, z)[1], p)[1]
+_GetDeriv(ADmode::Val{:FiniteDifferences}; kwargs...) = throw("GetDeriv not available for FiniteDifferences.jl")
+_GetGrad(ADmode::Val{:FiniteDifferences}; order::Int=3, kwargs...) = (Func::Function,p;Kwargs...) -> FiniteDifferences.grad(central_fdm(order,1), Func, p; kwargs...)[1]
+_GetJac(ADmode::Val{:FiniteDifferences}; order::Int=3, kwargs...) = (Func::Function,p;Kwargs...) -> FiniteDifferences.jacobian(central_fdm(order,1), Func, p; kwargs...)[1]
+_GetHess(ADmode::Val{:FiniteDifferences}; order::Int=5, kwargs...) = (Func::Function,p;Kwargs...) -> FiniteDifferences.jacobian(central_fdm(order,1), z->FiniteDifferences.grad(central_fdm(order,1), Func, z)[1], p)[1]
 
 
 ## User has passed either Num or Vector{Num} to function, try to perfom symbolic passthrough
@@ -344,10 +343,6 @@ _GetJac!(ADmode::Val{:ForwardDiff}; kwargs...) = ForwardDiff.jacobian!
 _GetHess!(ADmode::Val{:ForwardDiff}; kwargs...) = ForwardDiff.hessian!
 _GetMatrixJac!(ADmode::Val{:ForwardDiff}; kwargs...) = _GetJac!(ADmode; kwargs...) # DELIBERATE!!!! _GetJac!() recognizes output format from given Array
 
-_GetGrad!(ADmode::Val{:ReverseDiff}; kwargs...) = ReverseDiff.gradient!
-_GetJac!(ADmode::Val{:ReverseDiff}; kwargs...) = ReverseDiff.jacobian!
-_GetHess!(ADmode::Val{:ReverseDiff}; kwargs...) = ReverseDiff.hessian!
-_GetMatrixJac!(ADmode::Val{:ReverseDiff}; kwargs...) = _GetJac!(ADmode; kwargs...) # DELIBERATE!!!! _GetJac!() recognizes output format from given Array
 
 # Fake in-place
 function _GetGrad!(ADmode::Union{<:Val{:Zygote},<:Val{:FiniteDiff},<:Val{:FiniteDifferences}}; verbose::Bool=false, kwargs...)

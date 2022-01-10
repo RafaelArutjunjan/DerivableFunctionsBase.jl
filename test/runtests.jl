@@ -21,7 +21,7 @@ using SafeTestsets
         @test maximum(abs.(MatrixJac(Metric3, [5,10,15.]) - Mat)) < 1e-5
     end
 
-    for ADmode ∈ [:ForwardDiff, :FiniteDifferences]
+    for ADmode ∈ [:ForwardDiff]
         MyTest(ADmode)
     end
 
@@ -31,7 +31,7 @@ using SafeTestsets
         maximum(abs.(DoubleJac(x->[exp(x[1])*sin(x[2]), cosh(x[2])*x[1]*x[2]], [5,10.]) - Djac)) < 1e-5
     end
 
-    for ADmode ∈ [:ForwardDiff, :FiniteDifferences]
+    for ADmode ∈ [:ForwardDiff]
         @test TestDoubleJac(ADmode)
     end
 end
@@ -59,7 +59,7 @@ end
         MatrixJac!(Matres, [5,10,15.]);   @test maximum(abs.(Matres - Mat)) < 1e-5
     end
 
-    for ADmode ∈ [:ForwardDiff, :FiniteDifferences]
+    for ADmode ∈ [:ForwardDiff]
         MyInplaceTest(ADmode)
     end
 end

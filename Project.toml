@@ -1,7 +1,7 @@
 name = "DerivableFunctionsBase"
 uuid = "2a74400c-0885-457e-a858-e4f63fac11e2"
 authors = ["Rafael Arutjunjan"]
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"

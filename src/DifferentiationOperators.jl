@@ -3,7 +3,7 @@
 """
 Shows the differentation backends available for use with `DerivableFunctions.jl`.
 """
-diff_backends() = vcat([:Symbolic, :ForwardDiff, :FiniteDifferences], AddedBackEnds(Val(length(methods(AddedBackEnds)) > 1)))
+diff_backends() = vcat([:Symbolic, :ForwardDiff], AddedBackEnds(Val(length(methods(AddedBackEnds)) > 1)))
 AddedBackEnds(::Val{false}) = Symbol[]
 
 

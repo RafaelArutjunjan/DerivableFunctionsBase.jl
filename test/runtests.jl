@@ -11,14 +11,14 @@ using SafeTestsets
     Mat = reshape(ForwardDiff.jacobian(vec∘Metric3, [5,10,15.]), 3, 3, 3)
     Djac = reshape(ForwardDiff.jacobian(p->vec(ForwardDiff.jacobian(x->[exp(x[1])*sin(x[2]), cosh(x[2])*x[1]*x[2]],p)), [5,10.]), 2,2,2)
 
-    function MyTest(ADmode::Symbol; kwargs...)
+    function MyTest(ADmode::Symbol; atol::Real=1e-5, kwargs...)
         Grad, Jac, Hess = GetGrad(ADmode; kwargs...), GetJac(ADmode; kwargs...), GetHess(ADmode; kwargs...)
         MatrixJac = GetMatrixJac(ADmode; order=8, kwargs...)
 
-        @test Grad(x->x[1]^2 + exp(x[2]), [5,10.]) ≈ X
-        @test Jac(x->[x[1]^2, exp(x[2])], [5,10.]) ≈ Y
-        @test Hess(x->x[1]^2 + exp(x[2]) + x[1]*x[2], [5,10.]) ≈ Z
-        @test maximum(abs.(MatrixJac(Metric3, [5,10,15.]) - Mat)) < 1e-5
+        @test isapprox(Grad(x->x[1]^2 + exp(x[2]), [5,10.]), X; atol=atol)
+        @test isapprox(Jac(x->[x[1]^2, exp(x[2])], [5,10.]), Y; atol=atol)
+        @test isapprox(Hess(x->x[1]^2 + exp(x[2]) + x[1]*x[2], [5,10.]), Z; atol=atol)
+        @test maximum(abs.(MatrixJac(Metric3, [5,10,15.]) - Mat)) < atol
     end
 
     for ADmode ∈ [:ForwardDiff]
@@ -26,9 +26,9 @@ using SafeTestsets
     end
 
 
-    function TestDoubleJac(ADmode::Symbol; kwargs...)
+    function TestDoubleJac(ADmode::Symbol; atol::Real=1e-5, kwargs...)
         DoubleJac = GetDoubleJac(ADmode; order=8, kwargs...)
-        maximum(abs.(DoubleJac(x->[exp(x[1])*sin(x[2]), cosh(x[2])*x[1]*x[2]], [5,10.]) - Djac)) < 1e-5
+        maximum(abs.(DoubleJac(x->[exp(x[1])*sin(x[2]), cosh(x[2])*x[1]*x[2]], [5,10.]) - Djac)) < atol
     end
 
     for ADmode ∈ [:ForwardDiff]

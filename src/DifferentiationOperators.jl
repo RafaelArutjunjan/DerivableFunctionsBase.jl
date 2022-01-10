@@ -37,7 +37,8 @@ Derivative(5.0)
 For available backends, see `diff_backends()`.
 """
 function GetDeriv(ADmode::Val, F::Function, args...; kwargs...)
-    EvaluateDeriv(X::Number) = _GetDeriv(ADmode; kwargs...)(F, X)
+    Dv = _GetDeriv(ADmode; kwargs...)
+    EvaluateDeriv(X::Number) = Dv(F, X)
     EvaluateDeriv(X::Num) = _GetDerivPass(F, X)
 end
 function GetDeriv(ADmode::Val{:Symbolic}, F::Function, args...; verbose::Bool=true, kwargs...)
@@ -47,7 +48,7 @@ function GetDeriv(ADmode::Val{:Symbolic}, F::Function, args...; verbose::Bool=tr
         GetDeriv(Val(:ForwardDiff), F)
     else M end
 end
-GetDeriv(ADmode::Val; Kwargs...) = EvaluateDerivative(F::Function, X; kwargs...) = _GetDeriv(ADmode; Kwargs...)(F, X; kwargs...)
+GetDeriv(ADmode::Val; Kwargs...) = (Dv=_GetDeriv(ADmode; Kwargs...);    EvaluateDerivative(F::Function, X; kwargs...) = Dv(F, X; kwargs...))
 GetDeriv(ADmode::Val, F::DFunction, args...; Kwargs...) = EvaldF(F)
 
 
@@ -63,7 +64,8 @@ Gradient(rand(2))
 For available backends, see `diff_backends()`.
 """
 function GetGrad(ADmode::Val, F::Function, args...; kwargs...)
-    EvaluateGradient(X::AbstractVector{<:Number}) = _GetGrad(ADmode; kwargs...)(F, X)
+    Dv = _GetGrad(ADmode; kwargs...)
+    EvaluateGradient(X::AbstractVector{<:Number}) = Dv(F, X)
     EvaluateGradient(X::AbstractVector{<:Num}) = _GetGradPass(F, X)
 end
 function GetGrad(ADmode::Val{:Symbolic}, F::Function, m::Int=GetArgLength(F), args...; verbose::Bool=true, kwargs...)
@@ -73,7 +75,7 @@ function GetGrad(ADmode::Val{:Symbolic}, F::Function, m::Int=GetArgLength(F), ar
         GetGrad(Val(:ForwardDiff), F, m, args...)
     else M end
 end
-GetGrad(ADmode::Val; Kwargs...) = EvaluateGradient(F::Function, X; kwargs...) = _GetGrad(ADmode; Kwargs...)(F, X; kwargs...)
+GetGrad(ADmode::Val; Kwargs...) = (Dv=_GetGrad(ADmode; Kwargs...);  EvaluateGradient(F::Function, X; kwargs...) = Dv(F, X; kwargs...))
 GetGrad(ADmode::Val, F::DFunction, args...; Kwargs...) = EvaldF(F)
 
 
@@ -89,7 +91,8 @@ Jacobian(rand(2))
 For available backends, see `diff_backends()`.
 """
 function GetJac(ADmode::Val, F::Function, args...; kwargs...)
-    EvaluateJacobian(X::AbstractVector{<:Number}) = _GetJac(ADmode; kwargs...)(F, X)
+    Dv = _GetJac(ADmode; kwargs...)
+    EvaluateJacobian(X::AbstractVector{<:Number}) = Dv(F, X)
     EvaluateJacobian(X::AbstractVector{<:Num}) = _GetJacPass(F, X)
 end
 function GetJac(ADmode::Val{:Symbolic}, F::Function, m::Int=GetArgLength(F), args...; verbose::Bool=true, kwargs...)
@@ -99,7 +102,7 @@ function GetJac(ADmode::Val{:Symbolic}, F::Function, m::Int=GetArgLength(F), arg
         GetJac(Val(:ForwardDiff), F, m, args...)
     else M end
 end
-GetJac(ADmode::Val; Kwargs...) = EvaluateJacobian(F::Function, X; kwargs...) = _GetJac(ADmode; Kwargs...)(F, X; kwargs...)
+GetJac(ADmode::Val; Kwargs...) = (Dv=_GetJac(ADmode; Kwargs...);  EvaluateJacobian(F::Function, X; kwargs...) = Dv(F, X; kwargs...))
 GetJac(ADmode::Val, F::DFunction, args...; Kwargs...) = EvaldF(F)
 
 
@@ -115,7 +118,8 @@ Hessian(rand(2))
 For available backends, see `diff_backends()`.
 """
 function GetHess(ADmode::Val, F::Function, args...; kwargs...)
-    EvaluateHess(X::AbstractVector{<:Number}) = _GetHess(ADmode; kwargs...)(F, X)
+    Dv = _GetHess(ADmode; kwargs...)
+    EvaluateHess(X::AbstractVector{<:Number}) = Dv(F, X)
     EvaluateHess(X::AbstractVector{<:Num}) = _GetHessPass(F, X)
 end
 function GetHess(ADmode::Val{:Symbolic}, F::Function, m::Int=GetArgLength(F), args...; verbose::Bool=true, kwargs...)
@@ -125,7 +129,7 @@ function GetHess(ADmode::Val{:Symbolic}, F::Function, m::Int=GetArgLength(F), ar
         GetHess(Val(:ForwardDiff), F, m, args...)
     else M end
 end
-GetHess(ADmode::Val; Kwargs...) = EvaluateHessian(F::Function, X; kwargs...) = _GetHess(ADmode; Kwargs...)(F, X; kwargs...)
+GetHess(ADmode::Val; Kwargs...) = (Dv=_GetHess(ADmode; Kwargs...);  EvaluateHessian(F::Function, X; kwargs...) = Dv(F, X; kwargs...))
 GetHess(ADmode::Val, F::DFunction, args...; Kwargs...) = EvalddF(F)
 
 
@@ -147,8 +151,9 @@ Jacobian(rand(2))
 For available backends, see `diff_backends()`.
 """
 function GetMatrixJac(ADmode::Val, F::Function, m::Int=GetArgLength(F), f::Tuple=_SizeTuple(F,m), args...; kwargs...)
-    EvaluateMatrixJacobian(X::AbstractVector{<:Number}) = reshape(_GetJac(ADmode; kwargs...)(vec∘F, X), f..., m)
-    EvaluateMatrixJacobian(X::Number) = reshape(_GetJac(ADmode; kwargs...)(vec∘F∘(z::AbstractVector->z[1]), [X]), f..., m)
+    Dv = _GetJac(ADmode; kwargs...)
+    EvaluateMatrixJacobian(X::AbstractVector{<:Number}) = reshape(Dv(vec∘F, X), f..., m)
+    EvaluateMatrixJacobian(X::Number) = reshape(Dv(vec∘F∘(z::AbstractVector->z[1]), [X]), f..., m)
     EvaluateMatrixJacobian(X::Union{<:Num,<:AbstractVector{<:Num}}) = _GetMatrixJacPass(F, X)
 end
 function GetMatrixJac(ADmode::Val{:Symbolic}, F::Function, m::Int=GetArgLength(F), f::Tuple=_SizeTuple(F,m), args...; verbose::Bool=true, kwargs...)
@@ -158,13 +163,14 @@ function GetMatrixJac(ADmode::Val{:Symbolic}, F::Function, m::Int=GetArgLength(F
         GetMatrixJac(Val(:ForwardDiff), F, m, f, args...)
     else M end
 end
-GetMatrixJac(ADmode::Val; Kwargs...) = EvaluateMatrixJacobian(F::Function, X; kwargs...) = _GetMatrixJac(ADmode; Kwargs...)(F, X; kwargs...)
+GetMatrixJac(ADmode::Val; Kwargs...) = (Dv=_GetMatrixJac(ADmode; Kwargs...);    EvaluateMatrixJacobian(F::Function, X; kwargs...) = Dv(F, X; kwargs...))
 GetMatrixJac(ADmode::Val, F::DFunction, args...; Kwargs...) = EvaldF(F)
 
 # For emergencies: needs an extra evaluation of function to determine length(Func(p))
 function _GetMatrixJac(ADmode::Val; kwargs...)
-    Functor(Func::Function, X::AbstractVector{<:Number}) = reshape(_GetJac(ADmode; kwargs...)(vec∘Func, X), size(Func(X))..., length(X))
-    Functor(Func::Function, X::Number) = reshape(_GetJac(ADmode; kwargs...)(vec∘Func∘(z::AbstractVector->z[1]), [X]), size(Func(X))..., 1)
+    Dv = _GetJac(ADmode; kwargs...)
+    Functor(Func::Function, X::AbstractVector{<:Number}) = reshape(Dv(vec∘Func, X), size(Func(X))..., length(X))
+    Functor(Func::Function, X::Number) = reshape(Dv(vec∘Func∘(z::AbstractVector->z[1]), [X]), size(Func(X))..., 1)
 end
 
 
@@ -180,11 +186,12 @@ DoubleJacobian(rand(2))
 For available backends, see `diff_backends()`.
 """
 function GetDoubleJac(ADmode::Val, F::Function, m::Int=GetArgLength(F), f::Int=length(F(rand(m))), args...; kwargs...)
+    Dv = _GetJac(ADmode; kwargs...)
     if f == 1
-        EvaluateDoubleJac(X::AbstractVector{<:Number}) = reshape(_GetJac(ADmode; kwargs...)(vec∘(z->_GetJac(ADmode; kwargs...)(F,z)), X), m, m)
+        EvaluateDoubleJac(X::AbstractVector{<:Number}) = reshape(Dv(vec∘(z->Dv(F,z)), X), m, m)
         EvaluateDoubleJac(X::AbstractVector{<:Num}) = _GetDoubleJacPass(F, X)
     else
-        EvaluateDoubleJacobian(X::AbstractVector{<:Number}) = reshape(_GetJac(ADmode; kwargs...)(vec∘(z->_GetJac(ADmode; kwargs...)(F,z)), X), f, m, m)
+        EvaluateDoubleJacobian(X::AbstractVector{<:Number}) = reshape(Dv(vec∘(z->Dv(F,z)), X), f, m, m)
         EvaluateDoubleJacobian(X::AbstractVector{<:Num}) = _GetDoubleJacPass(F, X)
     end
 end
@@ -195,12 +202,13 @@ function GetDoubleJac(ADmode::Val{:Symbolic}, F::Function, m::Int=GetArgLength(F
         GetDoubleJac(Val(:ForwardDiff), F, m, f, args...)
     else M end
 end
-GetDoubleJac(ADmode::Val; Kwargs...) = EvaluateDoubleJacobian(F::Function, X; kwargs...) = _GetDoubleJac(ADmode; Kwargs...)(F, X; kwargs...)
+GetDoubleJac(ADmode::Val; Kwargs...) = (Dv=_GetDoubleJac(ADmode; Kwargs...);    EvaluateDoubleJacobian(F::Function, X; kwargs...) = Dv(F, X; kwargs...))
 GetDoubleJac(ADmode::Val, F::DFunction, args...; Kwargs...) = EvalddF(F)
 
 # For emergencies: needs an extra evaluation of function to determine length(Func(p))
 function _GetDoubleJac(ADmode::Val; kwargs...)
-    Functor(Func::Function, X) = reshape(_GetJac(ADmode; kwargs...)(vec∘(z->_GetJac(ADmode; kwargs...)(Func,z)), X), length(Func(X)), length(X), length(X))
+    Dv = _GetJac(ADmode; kwargs...)
+    Functor(Func::Function, X) = reshape(Dv(vec∘(z->Dv(Func,z)), X), length(Func(X)), length(X), length(X))
 end
 
 
@@ -267,7 +275,8 @@ Gradient!(Y, rand(2))
 For available backends, see `diff_backends()`.
 """
 function GetGrad!(ADmode::Val, F::Function; kwargs...)
-    EvaluateGradient!(Y::AbstractVector{<:Number}, X::AbstractVector{<:Number}) = _GetGrad!(ADmode; kwargs...)(Y, F, X)
+    Dv = _GetGrad!(ADmode; kwargs...)
+    EvaluateGradient!(Y::AbstractVector{<:Number}, X::AbstractVector{<:Number}) = Dv(Y, F, X)
     EvaluateGradient!(Y::AbstractVector{<:Num}, X::AbstractVector{<:Num}) = _GetGradPass!(Y, F, X)
 end
 
@@ -285,7 +294,8 @@ Jacobian!(Y, rand(2))
 For available backends, see `diff_backends()`.
 """
 function GetJac!(ADmode::Val, F::Function; kwargs...)
-    EvaluateJacobian!(Y::AbstractMatrix{<:Number}, X::AbstractVector{<:Number}) = _GetJac!(ADmode; kwargs...)(Y, F, X)
+    Dv = _GetJac!(ADmode; kwargs...)
+    EvaluateJacobian!(Y::AbstractMatrix{<:Number}, X::AbstractVector{<:Number}) = Dv(Y, F, X)
     EvaluateJacobian!(Y::AbstractMatrix{<:Num}, X::AbstractVector{<:Num}) = _GetJacPass!(Y, F, X)
 end
 
@@ -303,7 +313,8 @@ Hessian!(Y, rand(2))
 For available backends, see `diff_backends()`.
 """
 function GetHess!(ADmode::Val, F::Function; kwargs...)
-    EvaluateHess!(Y::AbstractMatrix{<:Number}, X::AbstractVector{<:Number}) = _GetHess!(ADmode; kwargs...)(Y, F, X)
+    Dv = _GetHess!(ADmode; kwargs...)
+    EvaluateHess!(Y::AbstractMatrix{<:Number}, X::AbstractVector{<:Number}) = Dv(Y, F, X)
     EvaluateHess!(Y::AbstractMatrix{<:Num}, X::AbstractVector{<:Num}) = _GetHessPass!(Y, F, X)
 end
 
@@ -321,7 +332,8 @@ Jacobian!(Y, rand(2))
 For available backends, see `diff_backends()`.
 """
 function GetMatrixJac!(ADmode::Val, F::Function; kwargs...)
-    EvaluateMatrixJacobian(Y::AbstractArray{<:Number}, X::AbstractVector{<:Number}) = _GetMatrixJac!(ADmode; kwargs...)(Y, F, X)
+    Dv = _GetMatrixJac!(ADmode; kwargs...)
+    EvaluateMatrixJacobian(Y::AbstractArray{<:Number}, X::AbstractVector{<:Number}) = Dv(Y, F, X)
     EvaluateMatrixJacobian(Y::AbstractArray{<:Num}, X::AbstractVector{<:Num}) = _GetMatrixJacPass!(Y, F, X)
 end
 
@@ -346,7 +358,6 @@ _GetJac!(ADmode::Val{:ForwardDiff}; kwargs...) = ForwardDiff.jacobian!
 _GetHess!(ADmode::Val{:ForwardDiff}; kwargs...) = ForwardDiff.hessian!
 _GetMatrixJac!(ADmode::Val{:ForwardDiff}; kwargs...) = _GetJac!(ADmode; kwargs...) # DELIBERATE!!!! _GetJac!() recognizes output format from given Array
 ##
-
 
 
 

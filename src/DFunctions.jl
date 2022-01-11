@@ -114,8 +114,14 @@ EvalF(F::Function) = F
 # No inference is performed on the input function here, it is assumed to not output scalar values
 EvaldF(F::Function, x; ADmode::Union{Symbol,Val}=Val(:ForwardDiff)) = GetMatrixJac(ADmode, F)(x)
 EvaldF(F::Function; ADmode::Union{Symbol,Val}=Val(:ForwardDiff)) = GetMatrixJac(ADmode, F)
-EvalddF(F::Function, x; ADmode::Union{Symbol,Val}=Val(:ForwardDiff)) = GetMatrixJac(ADmode, GetMatrixJac(ADmode, F))(x)
-EvalddF(F::Function; ADmode::Union{Symbol,Val}=Val(:ForwardDiff)) = GetMatrixJac(ADmode, GetMatrixJac(ADmode, F))
+function EvalddF(F::Function, x; ADmode::Union{Symbol,Val}=Val(:ForwardDiff))
+    m=GetArgLength(F);  f=_SizeTuple(F, m)
+    GetMatrixJac(ADmode, GetMatrixJac(ADmode, F, m, f), m, (f..., m))(x)
+end
+function EvalddF(F::Function; ADmode::Union{Symbol,Val}=Val(:ForwardDiff))
+    m=GetArgLength(F);  f=_SizeTuple(F, m)
+    GetMatrixJac(ADmode, GetMatrixJac(ADmode, F, m, f), m, (f..., m))
+end
 
 
 _InputSpace(D::DFunction) = _SpaceWord(In(D))

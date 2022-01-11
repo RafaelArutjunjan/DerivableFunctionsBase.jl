@@ -122,6 +122,13 @@ end
     @test EvaldF(D6, rand(3)) isa AbstractArray{<:Number,3}
     @test EvalddF(D6, rand(3)) isa AbstractArray{<:Number,4}
     AllSymbolic(D6)
+
+    g = rand(3)
+    @test D6(g) == EvalF(D6, g) ≈ EvalF(F6, g)
+    @test EvaldF(D6, g) ≈ EvaldF(F6, g)
+    @test EvalddF(D6, g) ≈ EvalddF(F6, g)
+
+    show(D6)
 end
 
 @safetestset "Function Structure Inference" begin

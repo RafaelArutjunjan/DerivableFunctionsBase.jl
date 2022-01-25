@@ -1,21 +1,22 @@
 
+# Never return Int and also never return abstract types.
+# E.g. eltype((1.,1)) == Real
 """
     suff(x) -> Type
 If `x` stores BigFloats, `suff` returns BigFloat, else `suff` returns `Float64`.
 """
-suff(x::BigFloat) = BigFloat
-suff(x::Float32) = Float32
-suff(x::Float16) = Float16
+suff(x::T) where T<:AbstractFloat = T
 suff(x::Real) = Float64
 suff(x::Complex) = suff(real(x))
 suff(x::AbstractArray) = suff(x[1])
-suff(x::Tuple) = suff(x...)
+suff(x::Tuple) = suff(promote(x...)[1])
 suff(x::Union{Nothing, Missing}) = Float64
+suff(x) = eltype(x)
 suff(args...) = try suff(promote(args...)[1]) catch;  suff(args[1]) end
 
 suff(x::Num) = Num
 # Allow for differentiation through suff arrays.
-suff(x::ForwardDiff.Dual) = typeof(x)
+suff(x::T) where T<:ForwardDiff.Dual = T
 
 
 """

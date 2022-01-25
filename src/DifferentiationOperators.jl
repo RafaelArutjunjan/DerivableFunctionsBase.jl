@@ -222,7 +222,6 @@ _GetMatrixJac(ADmode::Val{true}; kwargs...) = _GetMatrixJac(Val(:ForwardDiff); k
 _GetDoubleJac(ADmode::Val{true}; kwargs...) = _GetDoubleJac(Val(:ForwardDiff); kwargs...)
 
 # User has passed either Num or Vector{Num} to function, try to perfom symbolic passthrough
-# Still need to extend this to functions F which are in-place
 _GetDerivPass(F::Function, X) = SymbolicPassthrough(F(X), X, :derivative)
 _GetGradPass(F::Function, X) = SymbolicPassthrough(F(X), X, :gradient)
 _GetJacPass(F::Function, X) = SymbolicPassthrough(F(X), X, :jacobian)
@@ -238,7 +237,12 @@ _GetJac(ADmode::Val{:ForwardDiff}; kwargs...) = ForwardDiff.jacobian
 _GetHess(ADmode::Val{:ForwardDiff}; kwargs...) = ForwardDiff.hessian
 ##
 
-
+# Error messages for unloaded backends
+_GetDeriv(ADmode::Val{T}; kwargs...) where T = throw("Backend $T does not exist or is not currently loaded.")
+_GetGrad(ADmode::Val{T}; kwargs...) where T = throw("Backend $T does not exist or is not currently loaded.")
+_GetJac(ADmode::Val{T}; kwargs...) where T = throw("Backend $T does not exist or is not currently loaded.")
+_GetHess(ADmode::Val{T}; kwargs...) where T = throw("Backend $T does not exist or is not currently loaded.")
+# _GetMatrixJac and _GetDoubleJac already implemented in terms of _GetJac
 
 
 GetGrad!(ADmode::Symbol, args...; kwargs...) = GetGrad!(Val(ADmode), args...; kwargs...)
@@ -343,6 +347,12 @@ _GetJacPass!(Y, F::Function, X) = copyto!(Y, SymbolicPassthrough(F(X), X, :jacob
 _GetHessPass!(Y, F::Function, X) = copyto!(Y, SymbolicPassthrough(F(X), X, :hessian))
 _GetMatrixJacPass!(Y, F::Function, X) = copyto!(Y, SymbolicPassthrough(F(X), X, :matrixjacobian))
 
+
+
+_GetGrad!(ADmode::Val{T}; kwargs...) where T = throw("Backend $T does not exist or is not currently loaded.")
+_GetJac!(ADmode::Val{T}; kwargs...) where T = throw("Backend $T does not exist or is not currently loaded.")
+_GetHess!(ADmode::Val{T}; kwargs...) where T = throw("Backend $T does not exist or is not currently loaded.")
+_GetMatrixJac!(ADmode::Val{T}; kwargs...) where T = throw("Backend $T does not exist or is not currently loaded.")
 
 
 # Fall back to ForwardDiff as standard

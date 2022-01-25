@@ -4,14 +4,26 @@ authors = ["Rafael Arutjunjan"]
 version = "0.1.3"
 
 [deps]
+FiniteDiff = "6a86dc24-6348-571c-b903-95158fe2bd41"
+FiniteDifferences = "26cc04aa-876d-5657-8c51-4c34ba976000"
 ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
 OffsetArrays = "6fe1bfb0-de20-5000-8ca7-80f57d26f881"
+Requires = "ae029012-a4dd-5104-9daa-d747884805df"
+ReverseDiff = "37e2e3b7-166d-5795-8a7a-e32c996b4267"
 Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
+Tracker = "9f7883ad-71c0-57eb-9f7f-b5c9e6d3789c"
+Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 
 [compat]
+FiniteDiff = "2"
+FiniteDifferences = "0.11, 0.12"
 ForwardDiff = "0.10"
 OffsetArrays = "1.10"
+Requires = "1.2"
+ReverseDiff = "1.8, 1.9"
 Symbolics = "2 - 4"
+Tracker = "0.2"
+Zygote = "0.6"
 julia = "1"
 
 [extras]

@@ -1,10 +1,15 @@
 
 
+
+# diff_backends() = vcat([:Symbolic, :ForwardDiff], AddedBackEnds(Val(length(methods(AddedBackEnds)) > 1)))
+# AddedBackEnds(::Val{false}) = Symbol[]
 """
 Shows the differentation backends available for use with `DerivableFunctions.jl`.
 """
-diff_backends() = vcat([:Symbolic, :ForwardDiff], AddedBackEnds(Val(length(methods(AddedBackEnds)) > 1)))
-AddedBackEnds(::Val{false}) = Symbol[]
+diff_backends() = DIFF_BACKENDS
+global DIFF_BACKENDS = [:Symbolic, :ForwardDiff]
+add_backends(x) = append!(DIFF_BACKENDS, x)
+
 
 
 
@@ -67,6 +72,9 @@ function GetGrad(ADmode::Val, F::Function, args...; kwargs...)
     Dv = _GetGrad(ADmode; kwargs...)
     EvaluateGradient(X::AbstractVector{<:Number}, args...) = Dv(F, X, args...)
     EvaluateGradient(X::AbstractVector{<:Num}) = _GetGradPass(F, X)
+    # Dv! = _GetGrad!(ADmode; kwargs...)
+    # EvaluateGradient(Y::AbstractVector{<:Number}, X::AbstractVector{<:Number}, args...) = Dv!(Y, F, X, args...)
+    # EvaluateGradient(Y::AbstractVector{<:Num}, X::AbstractVector{<:Num}) = _GetGradPass!(Y, F, X)
 end
 function GetGrad(ADmode::Val{:Symbolic}, F::Function, m::Int=GetArgLength(F), args...; verbose::Bool=true, kwargs...)
     M = try GetSymbolicDerivative(F, m, :gradient; kwargs...)   catch;  nothing  end
@@ -94,6 +102,9 @@ function GetJac(ADmode::Val, F::Function, args...; kwargs...)
     Dv = _GetJac(ADmode; kwargs...)
     EvaluateJacobian(X::AbstractVector{<:Number}, args...) = Dv(F, X, args...)
     EvaluateJacobian(X::AbstractVector{<:Num}) = _GetJacPass(F, X)
+    # Dv! = _GetJac!(ADmode; kwargs...)
+    # EvaluateJacobian(Y::AbstractMatrix{<:Number}, X::AbstractVector{<:Number}, args...) = Dv!(Y, F, X, args...)
+    # EvaluateJacobian(Y::AbstractMatrix{<:Num}, X::AbstractVector{<:Num}) = _GetJacPass!(Y, F, X)
 end
 function GetJac(ADmode::Val{:Symbolic}, F::Function, m::Int=GetArgLength(F), args...; verbose::Bool=true, kwargs...)
     M = try GetSymbolicDerivative(F, m, :jacobian; kwargs...)   catch;  nothing  end
@@ -121,6 +132,9 @@ function GetHess(ADmode::Val, F::Function, args...; kwargs...)
     Dv = _GetHess(ADmode; kwargs...)
     EvaluateHess(X::AbstractVector{<:Number}, args...) = Dv(F, X, args...)
     EvaluateHess(X::AbstractVector{<:Num}) = _GetHessPass(F, X)
+    # Dv! = _GetHess!(ADmode; kwargs...)
+    # EvaluateHess(Y::AbstractMatrix{<:Number}, X::AbstractVector{<:Number}, args...) = Dv!(Y, F, X, args...)
+    # EvaluateHess(Y::AbstractMatrix{<:Num}, X::AbstractVector{<:Num}) = _GetHessPass!(Y, F, X)
 end
 function GetHess(ADmode::Val{:Symbolic}, F::Function, m::Int=GetArgLength(F), args...; verbose::Bool=true, kwargs...)
     M = try GetSymbolicDerivative(F, m, :hessian; kwargs...)   catch;  nothing  end
@@ -155,6 +169,9 @@ function GetMatrixJac(ADmode::Val, F::Function, m::Int=GetArgLength(F), f::Tuple
     EvaluateMatrixJacobian(X::AbstractVector{<:Number}, args...) = reshape(Dv(vec∘F, X, args...), f..., m)
     EvaluateMatrixJacobian(X::Number) = reshape(Dv(vec∘F∘(z::AbstractVector->z[1]), [X]), f..., m)
     EvaluateMatrixJacobian(X::Union{<:Num,<:AbstractVector{<:Num}}) = _GetMatrixJacPass(F, X)
+    # Dv! = _GetMatrixJac!(ADmode; kwargs...)
+    # EvaluateMatrixJacobian(Y::AbstractArray{<:Number}, X::AbstractVector{<:Number}, args...) = Dv!(Y, F, X, args...)
+    # EvaluateMatrixJacobian(Y::AbstractArray{<:Num}, X::AbstractVector{<:Num}) = _GetMatrixJacPass!(Y, F, X)
 end
 function GetMatrixJac(ADmode::Val{:Symbolic}, F::Function, m::Int=GetArgLength(F), f::Tuple=_SizeTuple(F,m), args...; verbose::Bool=true, kwargs...)
     M = try GetSymbolicDerivative(F, m, :matrixjacobian; kwargs...)   catch;  nothing  end
@@ -340,6 +357,11 @@ function GetMatrixJac!(ADmode::Val, F::Function; kwargs...)
     EvaluateMatrixJacobian(Y::AbstractArray{<:Number}, X::AbstractVector{<:Number}, args...) = Dv(Y, F, X, args...)
     EvaluateMatrixJacobian(Y::AbstractArray{<:Num}, X::AbstractVector{<:Num}) = _GetMatrixJacPass!(Y, F, X)
 end
+
+# @deprecate GetGrad!(args...; kwargs...) GetGrad(args...; kwargs...)
+# @deprecate GetJac!(args...; kwargs...) GetJac(args...; kwargs...)
+# @deprecate GetHess!(args...; kwargs...) GetHess(args...; kwargs...)
+# @deprecate GetMatrixJac!(args...; kwargs...) GetMatrixJac(args...; kwargs...)
 
 # Need to extend this to functions F which are themselves also in-place
 _GetGradPass!(Y, F::Function, X) = copyto!(Y, SymbolicPassthrough(F(X), X, :gradient))

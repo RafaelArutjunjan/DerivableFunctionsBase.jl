@@ -23,7 +23,7 @@ suff(x::T) where T<:ForwardDiff.Dual = T
     MaximalNumberOfArguments(F::Function) -> Int
 Infers argument structure of given function, i.e. whether it is of the form `F(x)` or `F(x,y)` or `F(x,y,z)` etc. and returns maximal number of accepted arguments of all overloads of `F` as integer.
 """
-MaximalNumberOfArguments(F::Function) = maximum([length(Base.unwrap_unionall(m.sig).parameters)-1 for m in methods(F)])
+MaximalNumberOfArguments(F::Function) = maximum(length(Base.unwrap_unionall(m.sig).parameters)-1 for m in methods(F))
 
 
 """

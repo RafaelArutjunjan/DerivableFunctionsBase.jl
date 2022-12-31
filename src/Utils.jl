@@ -35,7 +35,11 @@ As a result, `GetArgLength` will be unable to determine the correct input struct
     Does NOT discriminate between `Real` and `Vector{Real}` of length one, i.e. `Real`↦`+1`.
     To disciminate between these two options, use `_GetArgLength()` instead.
 """
-GetArgLength(F::Function; max::Int=100) = _GetArgLength(F; max=max) |> abs
+function GetArgLength(F::Function; max::Int=100)
+    Res = _GetArgLength(F; max=max)
+    isnothing(Res) && throw("Unable to determine input length of parameter vector. Make sure function is well-defined and consider passing the input length manually.")
+    abs(Res)
+end
 
 """
     _GetArgLength(F::Function; max::Int=100) -> Int

@@ -1,7 +1,7 @@
 name = "DerivableFunctionsBase"
 uuid = "2a74400c-0885-457e-a858-e4f63fac11e2"
 authors = ["Rafael Arutjunjan"]
-version = "0.1.4"
+version = "0.1.5"
 
 [deps]
 ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
@@ -11,7 +11,7 @@ Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
 [compat]
 ForwardDiff = "0.10"
 OffsetArrays = "1.10"
-Symbolics = "2 - 5"
+Symbolics = "2 - 6"
 julia = "1"
 
 [extras]

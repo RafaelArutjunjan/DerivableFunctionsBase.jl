@@ -14,7 +14,7 @@ suff(x::Union{Nothing, Missing}) = Float64
 suff(x) = eltype(x)
 suff(args...) = try suff(promote(args...)[1]) catch;  suff(args[1]) end
 
-suff(x::Num) = Num
+suff(x::SymbolicScalar) = Num
 # Allow for differentiation through suff arrays.
 suff(x::T) where T<:ForwardDiff.Dual = T
 
@@ -147,7 +147,7 @@ end
     Builder(Fexpr::Union{<:AbstractVector{<:Num},<:Num}, args...; inplace::Bool=false, parallel::Bool=false, kwargs...)
 Builds `RuntimeGeneratedFunctions` from expressions via build_function().
 """
-function Builder(Fexpr::Union{<:AbstractArray{T},T}, args...; inplace::Bool=false, parallel::Bool=false, kwargs...) where T<:Union{Num,Symbolics.Symbolic}
+function Builder(Fexpr::Union{<:AbstractArray{T},T}, args...; inplace::Bool=false, parallel::Bool=false, kwargs...) where T<:SymbolicScalar
     parallelization = parallel ? Symbolics.MultithreadedForm() : Symbolics.SerialForm()
     Res = if (Fexpr isa T && args[1] isa T)
         # build_function throws error when using parallel keyword for R⟶R functions

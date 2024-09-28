@@ -1,5 +1,7 @@
 
 using DerivableFunctionsBase, Test, Symbolics
+import DerivableFunctionsBase: SymbolicScalar
+
 function CreateVariable(i::Int)
     i == -1 && return (@variables z)[1]
     (@variables z[1:i])[1]
@@ -14,30 +16,30 @@ F6(x) = [sinh(x[3]) exp(x[1])*sin(x[2]) 0 x[2]; 0 cosh(x[2]) cos(x[2])*x[3]*x[2]
 
 # R -> R
 D1 = DFunction(F1; ADmode=Val(:ForwardDiff))
-@test EvaldF(D1, CreateVariable(-1)) isa Num
-@test EvalddF(D1, CreateVariable(-1)) isa Num
+@test EvaldF(D1, CreateVariable(-1)) isa SymbolicScalar
+@test EvalddF(D1, CreateVariable(-1)) isa SymbolicScalar
 
 # R -> R^n
 D2 = DFunction(F2; ADmode=Val(:ForwardDiff))
-@test EvaldF(D2, CreateVariable(-1)) isa AbstractMatrix{<:Num}
-@test EvalddF(D2, CreateVariable(-1)) isa AbstractArray{<:Num,3}
+@test EvaldF(D2, CreateVariable(-1)) isa AbstractMatrix{<:SymbolicScalar}
+@test EvalddF(D2, CreateVariable(-1)) isa AbstractArray{<:SymbolicScalar,3}
 
 # R -> R^(n×m)
 D3 = DFunction(F3; ADmode=Val(:ForwardDiff))
-@test EvaldF(D3, CreateVariable(-1)) isa AbstractArray{<:Num,3}
-@test EvalddF(D3, CreateVariable(-1)) isa AbstractArray{<:Num,4}
+@test EvaldF(D3, CreateVariable(-1)) isa AbstractArray{<:SymbolicScalar,3}
+@test EvalddF(D3, CreateVariable(-1)) isa AbstractArray{<:SymbolicScalar,4}
 
 # R^n -> R
 D4 = DFunction(F4; ADmode=Val(:ForwardDiff))
-@test EvaldF(D4, CreateVariable(2)) isa AbstractVector{<:Num}
-@test EvalddF(D4, CreateVariable(2)) isa AbstractMatrix{<:Num}
+@test EvaldF(D4, CreateVariable(2)) isa AbstractVector{<:SymbolicScalar}
+@test EvalddF(D4, CreateVariable(2)) isa AbstractMatrix{<:SymbolicScalar}
 
 #R^n -> R^m
 D5 = DFunction(F5; ADmode=Val(:ForwardDiff))
-@test EvaldF(D5, CreateVariable(2)) isa AbstractMatrix{<:Num}
-@test EvalddF(D5, CreateVariable(2)) isa AbstractArray{<:Num,3}
+@test EvaldF(D5, CreateVariable(2)) isa AbstractMatrix{<:SymbolicScalar}
+@test EvalddF(D5, CreateVariable(2)) isa AbstractArray{<:SymbolicScalar,3}
 
 # R^n -> R^(n×m)
 D6 = DFunction(F6; ADmode=Val(:ForwardDiff))
-@test EvaldF(D6, CreateVariable(3)) isa AbstractArray{<:Num,3}
-@test EvalddF(D6, CreateVariable(3)) isa AbstractArray{<:Num,4}
+@test EvaldF(D6, CreateVariable(3)) isa AbstractArray{<:SymbolicScalar,3}
+@test EvalddF(D6, CreateVariable(3)) isa AbstractArray{<:SymbolicScalar,4}

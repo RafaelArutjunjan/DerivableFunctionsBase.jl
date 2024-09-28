@@ -39,7 +39,7 @@ For available backends, see `diff_backends()`.
 function GetDeriv(ADmode::Val, F::Function, args...; kwargs...)
     Dv = _GetDeriv(ADmode; kwargs...)
     EvaluateDeriv(X::Number, args...) = Dv(F, X, args...)
-    EvaluateDeriv(X::Num) = _GetDerivPass(F, X)
+    EvaluateDeriv(X::SymbolicScalar) = _GetDerivPass(F, X)
 end
 function GetDeriv(ADmode::Val{:Symbolic}, F::Function, args...; verbose::Bool=true, kwargs...)
     M = try GetSymbolicDerivative(F, 1, :derivative; kwargs...)   catch;  nothing  end
@@ -66,7 +66,7 @@ For available backends, see `diff_backends()`.
 function GetGrad(ADmode::Val, F::Function, args...; kwargs...)
     Dv = _GetGrad(ADmode; kwargs...)
     EvaluateGradient(X::AbstractVector{<:Number}, args...) = Dv(F, X, args...)
-    EvaluateGradient(X::AbstractVector{<:Num}) = _GetGradPass(F, X)
+    EvaluateGradient(X::AbstractVector{<:SymbolicScalar}) = _GetGradPass(F, X)
 end
 function GetGrad(ADmode::Val{:Symbolic}, F::Function, m::Int=GetArgLength(F), args...; verbose::Bool=true, kwargs...)
     M = try GetSymbolicDerivative(F, m, :gradient; kwargs...)   catch;  nothing  end
@@ -93,7 +93,7 @@ For available backends, see `diff_backends()`.
 function GetJac(ADmode::Val, F::Function, args...; kwargs...)
     Dv = _GetJac(ADmode; kwargs...)
     EvaluateJacobian(X::AbstractVector{<:Number}, args...) = Dv(F, X, args...)
-    EvaluateJacobian(X::AbstractVector{<:Num}) = _GetJacPass(F, X)
+    EvaluateJacobian(X::AbstractVector{<:SymbolicScalar}) = _GetJacPass(F, X)
 end
 function GetJac(ADmode::Val{:Symbolic}, F::Function, m::Int=GetArgLength(F), args...; verbose::Bool=true, kwargs...)
     M = try GetSymbolicDerivative(F, m, :jacobian; kwargs...)   catch;  nothing  end
@@ -120,7 +120,7 @@ For available backends, see `diff_backends()`.
 function GetHess(ADmode::Val, F::Function, args...; kwargs...)
     Dv = _GetHess(ADmode; kwargs...)
     EvaluateHess(X::AbstractVector{<:Number}, args...) = Dv(F, X, args...)
-    EvaluateHess(X::AbstractVector{<:Num}) = _GetHessPass(F, X)
+    EvaluateHess(X::AbstractVector{<:SymbolicScalar}) = _GetHessPass(F, X)
 end
 function GetHess(ADmode::Val{:Symbolic}, F::Function, m::Int=GetArgLength(F), args...; verbose::Bool=true, kwargs...)
     M = try GetSymbolicDerivative(F, m, :hessian; kwargs...)   catch;  nothing  end
@@ -154,7 +154,7 @@ function GetMatrixJac(ADmode::Val, F::Function, m::Int=GetArgLength(F), f::Tuple
     Dv = _GetJac(ADmode; kwargs...)
     EvaluateMatrixJacobian(X::AbstractVector{<:Number}, args...) = reshape(Dv(vec∘F, X, args...), f..., m)
     EvaluateMatrixJacobian(X::Number) = reshape(Dv(vec∘F∘(z::AbstractVector->z[1]), [X]), f..., m)
-    EvaluateMatrixJacobian(X::Union{<:Num,<:AbstractVector{<:Num}}) = _GetMatrixJacPass(F, X)
+    EvaluateMatrixJacobian(X::Union{<:SymbolicScalar,<:AbstractVector{<:SymbolicScalar}}) = _GetMatrixJacPass(F, X)
 end
 function GetMatrixJac(ADmode::Val{:Symbolic}, F::Function, m::Int=GetArgLength(F), f::Tuple=_SizeTuple(F,m), args...; verbose::Bool=true, kwargs...)
     M = try GetSymbolicDerivative(F, m, :matrixjacobian; kwargs...)   catch;  nothing  end
@@ -189,10 +189,10 @@ function GetDoubleJac(ADmode::Val, F::Function, m::Int=GetArgLength(F), f::Int=l
     Dv = _GetJac(ADmode; kwargs...)
     if f == 1
         EvaluateDoubleJac(X::AbstractVector{<:Number}) = reshape(Dv(vec∘(z->Dv(F,z)), X), m, m)
-        EvaluateDoubleJac(X::AbstractVector{<:Num}) = _GetDoubleJacPass(F, X)
+        EvaluateDoubleJac(X::AbstractVector{<:SymbolicScalar}) = _GetDoubleJacPass(F, X)
     else
         EvaluateDoubleJacobian(X::AbstractVector{<:Number}) = reshape(Dv(vec∘(z->Dv(F,z)), X), f, m, m)
-        EvaluateDoubleJacobian(X::AbstractVector{<:Num}) = _GetDoubleJacPass(F, X)
+        EvaluateDoubleJacobian(X::AbstractVector{<:SymbolicScalar}) = _GetDoubleJacPass(F, X)
     end
 end
 function GetDoubleJac(ADmode::Val{:Symbolic}, F::Function, m::Int=GetArgLength(F), f::Int=length(F(rand(m))), args...; verbose::Bool=true, kwargs...)
@@ -221,7 +221,7 @@ _GetHess(ADmode::Val{true}; kwargs...) = _GetHess(Val(:ForwardDiff); kwargs...)
 _GetMatrixJac(ADmode::Val{true}; kwargs...) = _GetMatrixJac(Val(:ForwardDiff); kwargs...)
 _GetDoubleJac(ADmode::Val{true}; kwargs...) = _GetDoubleJac(Val(:ForwardDiff); kwargs...)
 
-# User has passed either Num or Vector{Num} to function, try to perfom symbolic passthrough
+# User has passed either SymbolicScalar or Vector{SymbolicScalar} to function, try to perfom symbolic passthrough
 _GetDerivPass(F::Function, X) = SymbolicPassthrough(F(X), X, :derivative)
 _GetGradPass(F::Function, X) = SymbolicPassthrough(F(X), X, :gradient)
 _GetJacPass(F::Function, X) = SymbolicPassthrough(F(X), X, :jacobian)
@@ -281,7 +281,7 @@ For available backends, see `diff_backends()`.
 function GetGrad!(ADmode::Val, F::Function; kwargs...)
     Dv = _GetGrad!(ADmode; kwargs...)
     EvaluateGradient!(Y::AbstractVector{<:Number}, X::AbstractVector{<:Number}, args...) = Dv(Y, F, X, args...)
-    EvaluateGradient!(Y::AbstractVector{<:Num}, X::AbstractVector{<:Num}) = _GetGradPass!(Y, F, X)
+    EvaluateGradient!(Y::AbstractVector{<:SymbolicScalar}, X::AbstractVector{<:SymbolicScalar}) = _GetGradPass!(Y, F, X)
 end
 
 """
@@ -300,7 +300,7 @@ For available backends, see `diff_backends()`.
 function GetJac!(ADmode::Val, F::Function; kwargs...)
     Dv = _GetJac!(ADmode; kwargs...)
     EvaluateJacobian!(Y::AbstractMatrix{<:Number}, X::AbstractVector{<:Number}, args...) = Dv(Y, F, X, args...)
-    EvaluateJacobian!(Y::AbstractMatrix{<:Num}, X::AbstractVector{<:Num}) = _GetJacPass!(Y, F, X)
+    EvaluateJacobian!(Y::AbstractMatrix{<:SymbolicScalar}, X::AbstractVector{<:SymbolicScalar}) = _GetJacPass!(Y, F, X)
 end
 
 """
@@ -319,7 +319,7 @@ For available backends, see `diff_backends()`.
 function GetHess!(ADmode::Val, F::Function; kwargs...)
     Dv = _GetHess!(ADmode; kwargs...)
     EvaluateHess!(Y::AbstractMatrix{<:Number}, X::AbstractVector{<:Number}, args...) = Dv(Y, F, X, args...)
-    EvaluateHess!(Y::AbstractMatrix{<:Num}, X::AbstractVector{<:Num}) = _GetHessPass!(Y, F, X)
+    EvaluateHess!(Y::AbstractMatrix{<:SymbolicScalar}, X::AbstractVector{<:SymbolicScalar}) = _GetHessPass!(Y, F, X)
 end
 
 """
@@ -338,7 +338,7 @@ For available backends, see `diff_backends()`.
 function GetMatrixJac!(ADmode::Val, F::Function; kwargs...)
     Dv = _GetMatrixJac!(ADmode; kwargs...)
     EvaluateMatrixJacobian(Y::AbstractArray{<:Number}, X::AbstractVector{<:Number}, args...) = Dv(Y, F, X, args...)
-    EvaluateMatrixJacobian(Y::AbstractArray{<:Num}, X::AbstractVector{<:Num}) = _GetMatrixJacPass!(Y, F, X)
+    EvaluateMatrixJacobian(Y::AbstractArray{<:SymbolicScalar}, X::AbstractVector{<:SymbolicScalar}) = _GetMatrixJacPass!(Y, F, X)
 end
 
 # Need to extend this to functions F which are themselves also in-place
@@ -372,10 +372,10 @@ _GetMatrixJac!(ADmode::Val{:ForwardDiff}; kwargs...) = _GetJac!(ADmode; kwargs..
 
 
 _ConsistencyCheck(Fexpr, var, deriv::Symbol) = _ConsistencyCheck(Fexpr, var, Val(deriv))
-_ConsistencyCheck(Fexpr::AbstractVector{<:Num}, var::AbstractVector{<:Num}, ::Union{Val{:jacobian},Val{:doublejacobian}}) = nothing
-_ConsistencyCheck(Fexpr::Num, var::AbstractVector{<:Num}, ::Union{Val{:gradient},Val{:hessian}}) = nothing
-_ConsistencyCheck(Fexpr::Num, var::Num, ::Val{:derivative}) = nothing
-_ConsistencyCheck(Fexpr::AbstractArray{<:Num}, var::Union{<:Num,<:AbstractVector{<:Num}}, ::Val{:matrixjacobian}) = nothing
+_ConsistencyCheck(Fexpr::AbstractVector{<:SymbolicScalar}, var::AbstractVector{<:SymbolicScalar}, ::Union{Val{:jacobian},Val{:doublejacobian}}) = nothing
+_ConsistencyCheck(Fexpr::SymbolicScalar, var::AbstractVector{<:SymbolicScalar}, ::Union{Val{:gradient},Val{:hessian}}) = nothing
+_ConsistencyCheck(Fexpr::SymbolicScalar, var::SymbolicScalar, ::Val{:derivative}) = nothing
+_ConsistencyCheck(Fexpr::AbstractArray{<:SymbolicScalar}, var::Union{<:SymbolicScalar,<:AbstractVector{<:SymbolicScalar}}, ::Val{:matrixjacobian}) = nothing
 function _ConsistencyCheck(Fexpr, var, deriv::Val{T}) where T
     if T ∉ [:derivative, :gradient, :jacobian, :hessian, :doublejacobian, :matrixjacobian]
         throw("Invalid deriv type: $T.")
@@ -387,13 +387,13 @@ end
 """
 Executes symbolic derivative as specified by `deriv::Symbol`.
 """
-function SymbolicPassthrough(Fexpr::Union{<:AbstractArray{<:Num},<:Num}, var::Union{<:AbstractVector{<:Num},<:Num}, deriv::Symbol=:jacobian; simplify::Bool=true)
+function SymbolicPassthrough(Fexpr::Union{<:AbstractArray{<:SymbolicScalar},<:SymbolicScalar}, var::Union{<:AbstractVector{<:SymbolicScalar},<:SymbolicScalar}, deriv::Symbol=:jacobian; simplify::Bool=true)
     _ConsistencyCheck(Fexpr, var, deriv)
 
-    SymbolicDoubleJacobian(V::AbstractVector{<:Num}, z::Num; simplify::Bool=true) = SymbolicDoubleJacobian(V, [z]; simplify=simplify)
-    SymbolicDoubleJacobian(V::AbstractVector{<:Num}, z::AbstractVector{<:Num}; simplify::Bool=true) = SymbolicMatrixJacobian(Symbolics.jacobian(V,z),z; simplify=simplify)
-    SymbolicMatrixJacobian(M::AbstractArray{<:Num}, z::Num; simplify::Bool=true) = SymbolicMatrixJacobian(M, [z]; simplify=simplify)
-    function SymbolicMatrixJacobian(M::AbstractArray{<:Num}, z::AbstractVector{<:Num}; simplify::Bool=true)
+    SymbolicDoubleJacobian(V::AbstractVector{<:SymbolicScalar}, z::SymbolicScalar; simplify::Bool=true) = SymbolicDoubleJacobian(V, [z]; simplify=simplify)
+    SymbolicDoubleJacobian(V::AbstractVector{<:SymbolicScalar}, z::AbstractVector{<:SymbolicScalar}; simplify::Bool=true) = SymbolicMatrixJacobian(Symbolics.jacobian(V,z),z; simplify=simplify)
+    SymbolicMatrixJacobian(M::AbstractArray{<:SymbolicScalar}, z::SymbolicScalar; simplify::Bool=true) = SymbolicMatrixJacobian(M, [z]; simplify=simplify)
+    function SymbolicMatrixJacobian(M::AbstractArray{<:SymbolicScalar}, z::AbstractVector{<:SymbolicScalar}; simplify::Bool=true)
         reshape(Symbolics.jacobian(vec(M), z; simplify=simplify), size(M)..., length(z))
     end
 
@@ -421,7 +421,7 @@ function GetSymbolicDerivative(F::Function, inputdim::Int=GetArgLength(F), deriv
 end
 GetSymbolicDerivative(F::Function, deriv::Symbol; kwargs...) = GetSymbolicDerivative(F, GetArgLength(F), deriv; kwargs...)
 
-function GetSymbolicDerivative(Fexpr::Union{<:AbstractArray{<:Num},<:Num}, var::Union{<:AbstractVector{<:Num},<:Num}, deriv::Symbol=:jacobian; simplify::Bool=true, inplace::Bool=false, parallel::Bool=false, kwargs...)
+function GetSymbolicDerivative(Fexpr::Union{<:AbstractArray{<:SymbolicScalar},<:SymbolicScalar}, var::Union{<:AbstractVector{<:SymbolicScalar},<:SymbolicScalar}, deriv::Symbol=:jacobian; simplify::Bool=true, inplace::Bool=false, parallel::Bool=false, kwargs...)
     derivative = SymbolicPassthrough(Fexpr, var, deriv; simplify=simplify)
     Builder(derivative, var; parallel=parallel, inplace=inplace, kwargs...)
 end

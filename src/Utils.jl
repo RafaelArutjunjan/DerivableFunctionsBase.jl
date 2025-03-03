@@ -147,8 +147,9 @@ end
     Builder(Fexpr::Union{<:AbstractVector{<:Num},<:Num}, args...; inplace::Bool=false, parallel::Bool=false, kwargs...)
 Builds `RuntimeGeneratedFunctions` from expressions via build_function().
 """
-function Builder(Fexpr::Union{<:AbstractArray{T},T}, args...; inplace::Bool=false, parallel::Bool=false, kwargs...) where T<:SymbolicScalar
-    parallelization = parallel ? Symbolics.MultithreadedForm() : Symbolics.SerialForm()
+function Builder(Fexpr::Union{<:AbstractArray{T},T}, args...; inplace::Bool=false, parallel::Bool=false, 
+                parallelization=parallel ? Symbolics.MultithreadedForm() : Symbolics.SerialForm(), kwargs...) where T<:SymbolicScalar
+    
     Res = if (Fexpr isa T && args[1] isa T)
         # build_function throws error when using parallel keyword for R⟶R functions
         Symbolics.build_function(Fexpr, args...; expression=Val{false}, kwargs...)

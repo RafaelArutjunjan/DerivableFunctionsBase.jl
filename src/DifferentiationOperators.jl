@@ -376,8 +376,10 @@ _ConsistencyCheck(Fexpr::AbstractVector{<:SymbolicScalar}, var::AbstractVector{<
 _ConsistencyCheck(Fexpr::SymbolicScalar, var::AbstractVector{<:SymbolicScalar}, ::Union{Val{:gradient},Val{:hessian}}) = nothing
 _ConsistencyCheck(Fexpr::SymbolicScalar, var::SymbolicScalar, ::Val{:derivative}) = nothing
 _ConsistencyCheck(Fexpr::AbstractArray{<:SymbolicScalar}, var::Union{<:SymbolicScalar,<:AbstractVector{<:SymbolicScalar}}, ::Val{:matrixjacobian}) = nothing
+
+const DerivTypes = [:derivative, :gradient, :jacobian, :hessian, :doublejacobian, :matrixjacobian]
 function _ConsistencyCheck(Fexpr, var, deriv::Val{T}) where T
-    if T ∉ [:derivative, :gradient, :jacobian, :hessian, :doublejacobian, :matrixjacobian]
+    if T ∉ DerivTypes
         throw("Invalid deriv type: $T.")
     else
         throw("Got :$T but Fexpr=$(typeof(Fexpr)) and arg=$(typeof(var)).")

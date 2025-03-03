@@ -1,12 +1,24 @@
 name = "DerivableFunctionsBase"
 uuid = "2a74400c-0885-457e-a858-e4f63fac11e2"
 authors = ["Rafael Arutjunjan"]
-version = "0.1.6"
+version = "0.2"
 
 [deps]
 ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
 OffsetArrays = "6fe1bfb0-de20-5000-8ca7-80f57d26f881"
 Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
+
+[weakdeps]
+FiniteDiff = "6a86dc24-6348-571c-b903-95158fe2bd41"
+FiniteDifferences = "26cc04aa-876d-5657-8c51-4c34ba976000"
+ReverseDiff = "37e2e3b7-166d-5795-8a7a-e32c996b4267"
+Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
+
+[extensions]
+FiniteDiffExt = ["FiniteDiff"]
+FiniteDifferencesExt = ["FiniteDifferences"]
+ReverseDiffExt = ["ReverseDiff"]
+ZygoteExt = ["Zygote"]
 
 [compat]
 ForwardDiff = "0.10"

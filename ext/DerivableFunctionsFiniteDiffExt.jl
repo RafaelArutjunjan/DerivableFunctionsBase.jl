@@ -1,4 +1,4 @@
-module FiniteDiffExt
+module DerivableFunctionsFiniteDiffExt
 
 using DerivableFunctionsBase, FiniteDiff
 

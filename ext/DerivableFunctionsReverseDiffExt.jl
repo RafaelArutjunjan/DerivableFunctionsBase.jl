@@ -1,4 +1,4 @@
-module ReverseDiffExt
+module DerivableFunctionsReverseDiffExt
 
 using DerivableFunctionsBase, ReverseDiff
 

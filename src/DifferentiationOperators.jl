@@ -1,9 +1,13 @@
 
 
+
+global AvailableBackEnds = [:ForwardDiff, :Symbolic]
+
 """
-Shows the differentation backends available for use with `DerivableFunctions.jl`.
+Shows the currently loaded differentation backends available for use with `DerivableFunctions.jl`.
 """
-diff_backends() = vcat([:Symbolic, :ForwardDiff], AddedBackEnds(Val(length(methods(AddedBackEnds)) > 1)))
+diff_backends() = DerivableFunctionsBase.AvailableBackEnds
+# deprecated:
 AddedBackEnds(::Val{false}) = Symbol[]
 
 

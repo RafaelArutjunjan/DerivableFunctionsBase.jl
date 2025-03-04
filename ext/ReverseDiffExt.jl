@@ -21,4 +21,7 @@ _GetMatrixJac!(ADmode::Val{:ReverseDiff}; kwargs...) = _GetJac!(ADmode; kwargs..
 import DerivableFunctionsBase: suff
 suff(x::ReverseDiff.TrackedReal) = typeof(x)
 
+
+__init__() = (push!(DerivableFunctionsBase.AvailableBackEnds, :ReverseDiff);  sort!(DerivableFunctionsBase.AvailableBackEnds))
+
 end # module

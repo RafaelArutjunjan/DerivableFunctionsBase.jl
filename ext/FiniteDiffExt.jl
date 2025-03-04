@@ -32,4 +32,7 @@ end
 _GetHess!(ADmode::Val{:FiniteDiff}; kwargs...) = FiniteDiff.finite_difference_hessian!
 _GetMatrixJac!(ADmode::Val{:FiniteDiff}; kwargs...) = _GetJac!(ADmode; kwargs...)
 
+
+__init__() = (push!(DerivableFunctionsBase.AvailableBackEnds, :FiniteDiff);  sort!(DerivableFunctionsBase.AvailableBackEnds))
+
 end # module

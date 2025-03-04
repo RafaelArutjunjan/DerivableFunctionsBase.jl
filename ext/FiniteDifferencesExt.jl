@@ -31,4 +31,6 @@ function _GetMatrixJac!(ADmode::Val{:FiniteDifferences}; verbose::Bool=false, kw
     FakeInPlaceMatrixJac!(Y::AbstractArray,F::Function,X::AbstractVector) = (Y[:] .= vec(_GetJac(ADmode; kwargs...)(F, X)))
 end
 
+__init__() = (push!(DerivableFunctionsBase.AvailableBackEnds, :FiniteDifferences);  sort!(DerivableFunctionsBase.AvailableBackEnds))
+
 end # module

@@ -32,4 +32,6 @@ function _GetMatrixJac!(ADmode::Val{:Zygote}; verbose::Bool=false, kwargs...)
     FakeInPlaceMatrixJac!(Y::AbstractArray,F::Function,X::AbstractVector) = (Y[:] .= vec(_GetJac(ADmode; kwargs...)(F, X)))
 end
 
+__init__() = (push!(DerivableFunctionsBase.AvailableBackEnds, :Zygote);  sort!(DerivableFunctionsBase.AvailableBackEnds))
+
 end # module

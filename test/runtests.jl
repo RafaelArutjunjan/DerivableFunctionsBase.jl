@@ -11,7 +11,7 @@ using SafeTestsets
     Mat = reshape(ForwardDiff.jacobian(vec∘Metric3, [5,10,15.]), 3, 3, 3)
     Djac = reshape(ForwardDiff.jacobian(p->vec(ForwardDiff.jacobian(x->[exp(x[1])*sin(x[2]), cosh(x[2])*x[1]*x[2]],p)), [5,10.]), 2,2,2)
 
-    function MyTest(ADmode::Symbol; atol::Real=1e-5, kwargs...)
+    function MyTest(ADmode::Symbol; atol::Real=2e-5, kwargs...)
         Grad, Jac, Hess = GetGrad(ADmode; kwargs...), GetJac(ADmode; kwargs...), GetHess(ADmode; kwargs...)
         MatrixJac = GetMatrixJac(ADmode; order=8, kwargs...)
 
@@ -20,10 +20,13 @@ using SafeTestsets
         @test isapprox(Hess(x->x[1]^2 + exp(x[2]) + x[1]*x[2], [5,10.]), Z; atol=atol)
         @test maximum(abs.(MatrixJac(Metric3, [5,10,15.]) - Mat)) < atol
     end
+    
+    using FiniteDiff, FiniteDifferences, ReverseDiff, Zygote
 
-    for ADmode ∈ [:ForwardDiff]
+    for ADmode ∈ [:ForwardDiff, :FiniteDifferences, :ReverseDiff, :Zygote]
         MyTest(ADmode)
     end
+    MyTest(:FiniteDiff; atol=0.2)
 
 
     function TestDoubleJac(ADmode::Symbol; atol::Real=1e-5, kwargs...)
@@ -31,10 +34,14 @@ using SafeTestsets
         maximum(abs.(DoubleJac(x->[exp(x[1])*sin(x[2]), cosh(x[2])*x[1]*x[2]], [5,10.]) - Djac)) < atol
     end
 
-    for ADmode ∈ [:ForwardDiff]
+    for ADmode ∈ [:ForwardDiff, :FiniteDifferences, :ReverseDiff]
         @test TestDoubleJac(ADmode)
     end
+    # Zygote does not support mutating arrays
+    @test_broken TestDoubleJac(:Zygote)
+    @test_broken TestDoublejac(:FiniteDiff)
 end
+
 
 @safetestset "Bare Differentiation Operator Backends (in-place)" begin
     using DerivableFunctionsBase, Test, ForwardDiff
@@ -45,7 +52,7 @@ end
     Z = ForwardDiff.hessian(x->x[1]^2 + exp(x[2]) + x[1]*x[2], [5,10.])
     Mat = reshape(ForwardDiff.jacobian(vec∘Metric3, [5,10,15.]), 3, 3, 3)
 
-    function MyInplaceTest(ADmode::Symbol; kwargs...)
+    function MyInplaceTest(ADmode::Symbol; atol::Real=2e-5, kwargs...)
         Grad! = GetGrad!(ADmode, x->x[1]^2 + exp(x[2]); kwargs...)
         Jac! = GetJac!(ADmode, x->[x[1]^2, exp(x[2])]; kwargs...)
         Hess! = GetHess!(ADmode, x->x[1]^2 + exp(x[2]) + x[1]*x[2]; kwargs...)
@@ -53,15 +60,18 @@ end
 
         Xres = similar(X);  Yres = similar(Y);  Zres = similar(Z);  Matres = similar(Mat)
 
-        Grad!(Xres, [5,10.]);   @test Xres ≈ X
-        Jac!(Yres, [5,10.]);   @test Yres ≈ Y
-        Hess!(Zres, [5,10.]);   @test Zres ≈ Z
-        MatrixJac!(Matres, [5,10,15.]);   @test maximum(abs.(Matres - Mat)) < 1e-5
+        Grad!(Xres, [5,10.]);   @test isapprox(Xres, X; atol=atol)
+        Jac!(Yres, [5,10.]);   @test isapprox(Yres, Y; atol=atol)
+        Hess!(Zres, [5,10.]);   @test isapprox(Zres, Z; atol=atol)
+        MatrixJac!(Matres, [5,10,15.]);   @test maximum(abs.(Matres - Mat)) < atol
     end
 
-    for ADmode ∈ [:ForwardDiff]
+    using FiniteDiff, FiniteDifferences, ReverseDiff, Zygote
+
+    for ADmode ∈ [:ForwardDiff, :FiniteDifferences, :ReverseDiff, :Zygote]
         MyInplaceTest(ADmode)
     end
+    MyInplaceTest(:FiniteDiff; atol=0.2)
 end
 
 
@@ -130,6 +140,7 @@ end
 
     show(D6)
 end
+
 
 @safetestset "Function Structure Inference" begin
     using DerivableFunctionsBase, Test

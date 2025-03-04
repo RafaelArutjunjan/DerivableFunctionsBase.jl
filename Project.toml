@@ -27,9 +27,13 @@ Symbolics = "2 - 6"
 julia = "1"
 
 [extras]
+FiniteDiff = "6a86dc24-6348-571c-b903-95158fe2bd41"
+FiniteDifferences = "26cc04aa-876d-5657-8c51-4c34ba976000"
+ReverseDiff = "37e2e3b7-166d-5795-8a7a-e32c996b4267"
 RuntimeGeneratedFunctions = "7e49a35a-f44a-4d26-94aa-eba1b4ca6b47"
 SafeTestsets = "1bc83da4-3b8d-516f-aca4-4fe02f6d838f"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 
 [targets]
-test = ["Test", "SafeTestsets", "RuntimeGeneratedFunctions"]
+test = ["Test", "SafeTestsets", "RuntimeGeneratedFunctions", "FiniteDiff", "FiniteDifferences", "ReverseDiff", "Zygote"]

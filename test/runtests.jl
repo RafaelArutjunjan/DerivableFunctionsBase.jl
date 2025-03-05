@@ -15,6 +15,8 @@ using SafeTestsets
         Grad, Jac, Hess = GetGrad(ADmode; kwargs...), GetJac(ADmode; kwargs...), GetHess(ADmode; kwargs...)
         MatrixJac = GetMatrixJac(ADmode; order=8, kwargs...)
 
+        @test ADmode ∈ diff_backends()
+
         @test isapprox(Grad(x->x[1]^2 + exp(x[2]), [5,10.]), X; atol=atol)
         @test isapprox(Jac(x->[x[1]^2, exp(x[2])], [5,10.]), Y; atol=atol)
         @test isapprox(Hess(x->x[1]^2 + exp(x[2]) + x[1]*x[2], [5,10.]), Z; atol=atol)

@@ -7,8 +7,7 @@ global AvailableBackEnds = [:ForwardDiff, :Symbolic]
 Shows the currently loaded differentation backends available for use with `DerivableFunctions.jl`.
 """
 diff_backends() = DerivableFunctionsBase.AvailableBackEnds
-# deprecated:
-AddedBackEnds(::Val{false}) = Symbol[]
+_add_backend(S::Symbol) = (push!(DerivableFunctionsBase.AvailableBackEnds, S);  sort!(DerivableFunctionsBase.AvailableBackEnds))
 
 
 

@@ -12,6 +12,7 @@ _GetGrad(ADmode::Val{:ReverseDiff}; kwargs...) = ReverseDiff.gradient
 _GetJac(ADmode::Val{:ReverseDiff}; kwargs...) = ReverseDiff.jacobian
 _GetHess(ADmode::Val{:ReverseDiff}; kwargs...) = ReverseDiff.hessian
 
+
 ## in-place operator backends
 _GetGrad!(ADmode::Val{:ReverseDiff}; kwargs...) = ReverseDiff.gradient!
 _GetJac!(ADmode::Val{:ReverseDiff}; kwargs...) = ReverseDiff.jacobian!
@@ -19,9 +20,10 @@ _GetHess!(ADmode::Val{:ReverseDiff}; kwargs...) = ReverseDiff.hessian!
 _GetMatrixJac!(ADmode::Val{:ReverseDiff}; kwargs...) = _GetJac!(ADmode; kwargs...) # DELIBERATE!!!! _GetJac!() recognizes output format from given Array
 
 import DerivableFunctionsBase: suff
-suff(x::ReverseDiff.TrackedReal) = typeof(x)
+suff(x::T) where T<:ReverseDiff.TrackedReal = T
 
 
-__init__() = (push!(DerivableFunctionsBase.AvailableBackEnds, :ReverseDiff);  sort!(DerivableFunctionsBase.AvailableBackEnds))
+import DerivableFunctionsBase: _add_backend
+__init__() = _add_backend(:ReverseDiff)
 
 end # module

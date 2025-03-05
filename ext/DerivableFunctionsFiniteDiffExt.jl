@@ -33,6 +33,7 @@ _GetHess!(ADmode::Val{:FiniteDiff}; kwargs...) = FiniteDiff.finite_difference_he
 _GetMatrixJac!(ADmode::Val{:FiniteDiff}; kwargs...) = _GetJac!(ADmode; kwargs...)
 
 
-__init__() = (push!(DerivableFunctionsBase.AvailableBackEnds, :FiniteDiff);  sort!(DerivableFunctionsBase.AvailableBackEnds))
+import DerivableFunctionsBase: _add_backend
+__init__() = _add_backend(:FiniteDiff)
 
 end # module

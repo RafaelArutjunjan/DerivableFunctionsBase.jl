@@ -13,7 +13,7 @@ _GetJac(ADmode::Val{:FiniteDifferences}; order::Int=3, kwargs...) = (Func::Funct
 _GetHess(ADmode::Val{:FiniteDifferences}; order::Int=5, kwargs...) = (Func::Function,p;Kwargs...) -> FiniteDifferences.jacobian(central_fdm(order,1), z->FiniteDifferences.grad(central_fdm(order,1), Func, z)[1], p)[1]
 
 
-# Fake in-place methods
+## Fake in-place methods
 function _GetGrad!(ADmode::Val{:FiniteDifferences}; verbose::Bool=false, kwargs...)
     verbose && (@warn "Using fake in-place differentiation operator GetGrad!() for ADmode=$ADmode because backend does not supply appropriate method.")
     FakeInPlaceGrad!(Y::AbstractVector,F::Function,X::AbstractVector) = copyto!(Y, _GetGrad(ADmode; kwargs...)(F, X))
@@ -31,6 +31,8 @@ function _GetMatrixJac!(ADmode::Val{:FiniteDifferences}; verbose::Bool=false, kw
     FakeInPlaceMatrixJac!(Y::AbstractArray,F::Function,X::AbstractVector) = (Y[:] .= vec(_GetJac(ADmode; kwargs...)(F, X)))
 end
 
-__init__() = (push!(DerivableFunctionsBase.AvailableBackEnds, :FiniteDifferences);  sort!(DerivableFunctionsBase.AvailableBackEnds))
+
+import DerivableFunctionsBase: _add_backend
+__init__() = _add_backend(:FiniteDifferences)
 
 end # module

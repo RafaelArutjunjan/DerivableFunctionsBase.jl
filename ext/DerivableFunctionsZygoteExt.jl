@@ -14,7 +14,7 @@ _GetHess(ADmode::Val{:Zygote}; order::Int=-1, kwargs...) = (Func::Function,p;Kwa
 _GetDoubleJac(ADmode::Val{:Zygote}; kwargs...) = throw("GetDoubleJac() not available for Zygote.jl") # Zygote does not support mutating arrays
 
 
-# Fake in-place methods
+## Fake in-place methods
 function _GetGrad!(ADmode::Val{:Zygote}; verbose::Bool=false, kwargs...)
     verbose && (@warn "Using fake in-place differentiation operator GetGrad!() for ADmode=$ADmode because backend does not supply appropriate method.")
     FakeInPlaceGrad!(Y::AbstractVector,F::Function,X::AbstractVector) = copyto!(Y, _GetGrad(ADmode; kwargs...)(F, X))
@@ -32,6 +32,8 @@ function _GetMatrixJac!(ADmode::Val{:Zygote}; verbose::Bool=false, kwargs...)
     FakeInPlaceMatrixJac!(Y::AbstractArray,F::Function,X::AbstractVector) = (Y[:] .= vec(_GetJac(ADmode; kwargs...)(F, X)))
 end
 
-__init__() = (push!(DerivableFunctionsBase.AvailableBackEnds, :Zygote);  sort!(DerivableFunctionsBase.AvailableBackEnds))
+
+import DerivableFunctionsBase: _add_backend
+__init__() = _add_backend(:Zygote)
 
 end # module

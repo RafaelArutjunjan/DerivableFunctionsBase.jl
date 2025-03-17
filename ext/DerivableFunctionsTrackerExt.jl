@@ -1,38 +1,42 @@
-module DerivableFunctionsFiniteDifferencesExt
+module DerivableFunctionsTrackerExt
 
-using DerivableFunctionsBase, FiniteDifferences
+using DerivableFunctionsBase, Tracker
 
 import DerivableFunctionsBase: _GetDeriv, _GetGrad, _GetJac, _GetHess, _GetDoubleJac, _GetMatrixJac
 import DerivableFunctionsBase: _GetGrad!, _GetJac!, _GetHess!, _GetMatrixJac!
 
 
 ## out-of-place operator backends
-_GetDeriv(ADmode::Val{:FiniteDifferences}; kwargs...) = throw("GetDeriv() not available for FiniteDifferences.jl")
-_GetGrad(ADmode::Val{:FiniteDifferences}; order::Int=3, kwargs...) = (Func::Function,p;Kwargs...) -> FiniteDifferences.grad(central_fdm(order,1), Func, p; kwargs...)[1]
-_GetJac(ADmode::Val{:FiniteDifferences}; order::Int=3, kwargs...) = (Func::Function,p;Kwargs...) -> FiniteDifferences.jacobian(central_fdm(order,1), Func, p; kwargs...)[1]
-_GetHess(ADmode::Val{:FiniteDifferences}; order::Int=5, kwargs...) = (Func::Function,p;Kwargs...) -> FiniteDifferences.jacobian(central_fdm(order,1), z->FiniteDifferences.grad(central_fdm(order,1), Func, z)[1], p)[1]
-_GetDoubleJac(ADmode::Val{:FiniteDifferences}; kwargs...) = throw("GetDoubleJac() not available for FiniteDifferences.jl")
+_GetDeriv(ADmode::Val{:Tracker}; kwargs...) = throw("GetDeriv() not available for Tracker.jl")
+_GetGrad(ADmode::Val{:Tracker}; order::Int=-1, kwargs...) = (Func::Function,p;Kwargs...) -> Tracker.gradient(Func, p; kwargs...)[1]
+_GetJac(ADmode::Val{:Tracker}; order::Int=-1, kwargs...) = (Func::Function,p;Kwargs...) -> Tracker.jacobian(Func, p; kwargs...)
+_GetHess(ADmode::Val{:Tracker}; order::Int=-1, kwargs...) = (Func::Function,p;Kwargs...) -> Tracker.hessian(Func, p; kwargs...)
+_GetDoubleJac(ADmode::Val{:Tracker}; kwargs...) = throw("GetDoubleJac() not available for Tracker.jl")
 
-## Fake in-place methods
-function _GetGrad!(ADmode::Val{:FiniteDifferences}; verbose::Bool=false, kwargs...)
+
+## Fake in-place operator backends
+function _GetGrad!(ADmode::Val{:Tracker}; verbose::Bool=false, kwargs...)
     verbose && (@warn "Using fake in-place differentiation operator GetGrad!() for ADmode=$ADmode because backend does not supply appropriate method.")
     FakeInPlaceGrad!(Y::AbstractVector,F::Function,X::AbstractVector) = copyto!(Y, _GetGrad(ADmode; kwargs...)(F, X))
 end
-function _GetJac!(ADmode::Val{:FiniteDifferences}; verbose::Bool=false, kwargs...)
+function _GetJac!(ADmode::Val{:Tracker}; verbose::Bool=false, kwargs...)
     verbose && (@warn "Using fake in-place differentiation operator GetJac!() for ADmode=$ADmode because backend does not supply appropriate method.")
     FakeInPlaceJac!(Y::AbstractMatrix,F::Function,X::AbstractVector) = copyto!(Y, _GetJac(ADmode; kwargs...)(F, X))
 end
-function _GetHess!(ADmode::Val{:FiniteDifferences}; verbose::Bool=false, kwargs...)
+function _GetHess!(ADmode::Val{:Tracker}; verbose::Bool=false, kwargs...)
     verbose && (@warn "Using fake in-place differentiation operator GetHess!() for ADmode=$ADmode because backend does not supply appropriate method.")
     FakeInPlaceHess!(Y::AbstractMatrix,F::Function,X::AbstractVector) = copyto!(Y, _GetHess(ADmode; kwargs...)(F, X))
 end
-function _GetMatrixJac!(ADmode::Val{:FiniteDifferences}; verbose::Bool=false, kwargs...)
+function _GetMatrixJac!(ADmode::Val{:Tracker}; verbose::Bool=false, kwargs...)
     verbose && (@warn "Using fake in-place differentiation operator GetMatrixJac!() for ADmode=$ADmode because backend does not supply appropriate method.")
     FakeInPlaceMatrixJac!(Y::AbstractArray,F::Function,X::AbstractVector) = (Y[:] .= vec(_GetJac(ADmode; kwargs...)(F, X)))
 end
 
+import DerivableFunctionsBase: suff
+suff(x::T) where T<:Tracker.TrackedReal = T
+
 
 import DerivableFunctionsBase: _add_backend
-__init__() = _add_backend(:FiniteDifferences)
+__init__() = _add_backend(:Tracker)
 
 end # module

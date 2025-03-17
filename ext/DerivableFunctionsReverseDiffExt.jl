@@ -11,6 +11,7 @@ _GetDeriv(ADmode::Val{:ReverseDiff}; kwargs...) = throw("GetDeriv() not availabl
 _GetGrad(ADmode::Val{:ReverseDiff}; kwargs...) = ReverseDiff.gradient
 _GetJac(ADmode::Val{:ReverseDiff}; kwargs...) = ReverseDiff.jacobian
 _GetHess(ADmode::Val{:ReverseDiff}; kwargs...) = ReverseDiff.hessian
+_GetDoubleJac(ADmode::Val{:ReverseDiff}; kwargs...) = throw("GetDoubleJac() not available for ReverseDiff.jl")
 
 
 ## in-place operator backends

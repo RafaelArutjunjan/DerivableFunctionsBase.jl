@@ -6,7 +6,7 @@ global AvailableBackEnds = [:ForwardDiff, :Symbolic]
 """
 Shows the currently loaded differentation backends available for use with `DerivableFunctions.jl`.
 """
-diff_backends() = DerivableFunctionsBase.AvailableBackEnds
+diff_backends() = copy(DerivableFunctionsBase.AvailableBackEnds)
 _add_backend(S::Symbol) = (push!(DerivableFunctionsBase.AvailableBackEnds, S);  sort!(DerivableFunctionsBase.AvailableBackEnds))
 
 
@@ -351,11 +351,16 @@ _GetHessPass!(Y, F::Function, X) = copyto!(Y, SymbolicPassthrough(F(X), X, :hess
 _GetMatrixJacPass!(Y, F::Function, X) = copyto!(Y, SymbolicPassthrough(F(X), X, :matrixjacobian))
 
 
+_GetGrad!(ADmode::Symbol; kwargs...) = _GetGrad!(Val(ADmode); kwargs...)
+_GetJac!(ADmode::Symbol; kwargs...) = _GetJac!(Val(ADmode); kwargs...)
+_GetHess!(ADmode::Symbol; kwargs...) = _GetHess!(Val(ADmode); kwargs...)
+_GetMatrixJac!(ADmode::Symbol; kwargs...) = _GetMatrixJac!(Val(ADmode); kwargs...)
 
-_GetGrad!(ADmode::Val{T}; kwargs...) where T = throw("Backend $T does not exist or is not currently loaded.")
-_GetJac!(ADmode::Val{T}; kwargs...) where T = throw("Backend $T does not exist or is not currently loaded.")
-_GetHess!(ADmode::Val{T}; kwargs...) where T = throw("Backend $T does not exist or is not currently loaded.")
-_GetMatrixJac!(ADmode::Val{T}; kwargs...) where T = throw("Backend $T does not exist or is not currently loaded.")
+
+_GetGrad!(ADmode::Val{T}; kwargs...) where T = throw("Backend $T does not exist or is not currently loaded. See currently loaded backends with diff_backends().")
+_GetJac!(ADmode::Val{T}; kwargs...) where T = throw("Backend $T does not exist or is not currently loaded. See currently loaded backends with diff_backends().")
+_GetHess!(ADmode::Val{T}; kwargs...) where T = throw("Backend $T does not exist or is not currently loaded. See currently loaded backends with diff_backends().")
+_GetMatrixJac!(ADmode::Val{T}; kwargs...) where T = throw("Backend $T does not exist or is not currently loaded. See currently loaded backends with diff_backends().")
 
 
 # Fall back to ForwardDiff as standard

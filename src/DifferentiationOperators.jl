@@ -45,9 +45,11 @@ function GetDeriv(ADmode::Val, F::Function, args...; kwargs...)
     EvaluateDeriv(X::SymbolicScalar) = _GetDerivPass(F, X)
 end
 function GetDeriv(ADmode::Val{:Symbolic}, F::Function, args...; verbose::Bool=true, kwargs...)
-    M = try GetSymbolicDerivative(F, 1, :derivative; kwargs...)   catch;  nothing  end
+    M = try GetSymbolicDerivative(F, 1, :derivative; kwargs...)   catch E;  
+        verbose && (@warn "Unable to compute symbolic derivative of $F, falling back to ForwardDiff due to $E.")
+        nothing
+    end
     if isnothing(M)
-        verbose && (@warn "Unable to compute symbolic derivative of $F, falling back to ForwardDiff.")
         GetDeriv(Val(:ForwardDiff), F)
     else M end
 end
@@ -72,9 +74,11 @@ function GetGrad(ADmode::Val, F::Function, args...; kwargs...)
     EvaluateGradient(X::AbstractVector{<:SymbolicScalar}) = _GetGradPass(F, X)
 end
 function GetGrad(ADmode::Val{:Symbolic}, F::Function, m::Int=GetArgLength(F), args...; verbose::Bool=true, kwargs...)
-    M = try GetSymbolicDerivative(F, m, :gradient; kwargs...)   catch;  nothing  end
+    M = try GetSymbolicDerivative(F, m, :gradient; kwargs...)   catch E;  
+        verbose && (@warn "Unable to compute symbolic derivative of $F, falling back to ForwardDiff due to $E.")
+        nothing
+    end
     if isnothing(M)
-        verbose && (@warn "Unable to compute symbolic derivative of $F, falling back to ForwardDiff.")
         GetGrad(Val(:ForwardDiff), F, m, args...)
     else M end
 end
@@ -99,9 +103,11 @@ function GetJac(ADmode::Val, F::Function, args...; kwargs...)
     EvaluateJacobian(X::AbstractVector{<:SymbolicScalar}) = _GetJacPass(F, X)
 end
 function GetJac(ADmode::Val{:Symbolic}, F::Function, m::Int=GetArgLength(F), args...; verbose::Bool=true, kwargs...)
-    M = try GetSymbolicDerivative(F, m, :jacobian; kwargs...)   catch;  nothing  end
+    M = try GetSymbolicDerivative(F, m, :jacobian; kwargs...)   catch E;  
+        verbose && (@warn "Unable to compute symbolic derivative of $F, falling back to ForwardDiff due to $E.")
+        nothing
+    end
     if isnothing(M)
-        verbose && (@warn "Unable to compute symbolic derivative of $F, falling back to ForwardDiff.")
         GetJac(Val(:ForwardDiff), F, m, args...)
     else M end
 end
@@ -126,9 +132,11 @@ function GetHess(ADmode::Val, F::Function, args...; kwargs...)
     EvaluateHess(X::AbstractVector{<:SymbolicScalar}) = _GetHessPass(F, X)
 end
 function GetHess(ADmode::Val{:Symbolic}, F::Function, m::Int=GetArgLength(F), args...; verbose::Bool=true, kwargs...)
-    M = try GetSymbolicDerivative(F, m, :hessian; kwargs...)   catch;  nothing  end
+    M = try GetSymbolicDerivative(F, m, :hessian; kwargs...)   catch E;  
+        verbose && (@warn "Unable to compute symbolic derivative of $F, falling back to ForwardDiff due to $E.")
+        nothing
+    end
     if isnothing(M)
-        verbose && (@warn "Unable to compute symbolic derivative of $F, falling back to ForwardDiff.")
         GetHess(Val(:ForwardDiff), F, m, args...)
     else M end
 end
@@ -160,9 +168,11 @@ function GetMatrixJac(ADmode::Val, F::Function, m::Int=GetArgLength(F), f::Tuple
     EvaluateMatrixJacobian(X::Union{<:SymbolicScalar,<:AbstractVector{<:SymbolicScalar}}) = _GetMatrixJacPass(F, X)
 end
 function GetMatrixJac(ADmode::Val{:Symbolic}, F::Function, m::Int=GetArgLength(F), f::Tuple=_SizeTuple(F,m), args...; verbose::Bool=true, kwargs...)
-    M = try GetSymbolicDerivative(F, m, :matrixjacobian; kwargs...)   catch;  nothing  end
+    M = try GetSymbolicDerivative(F, m, :matrixjacobian; kwargs...)   catch E;  
+        verbose && (@warn "Unable to compute symbolic derivative of $F, falling back to ForwardDiff due to $E.")
+        nothing
+    end
     if isnothing(M)
-        verbose && (@warn "Unable to compute symbolic derivative of $F, falling back to ForwardDiff.")
         GetMatrixJac(Val(:ForwardDiff), F, m, f, args...)
     else M end
 end
@@ -199,9 +209,11 @@ function GetDoubleJac(ADmode::Val, F::Function, m::Int=GetArgLength(F), f::Int=l
     end
 end
 function GetDoubleJac(ADmode::Val{:Symbolic}, F::Function, m::Int=GetArgLength(F), f::Int=length(F(rand(m))), args...; verbose::Bool=true, kwargs...)
-    M = try GetSymbolicDerivative(F, m, :doublejacobian; kwargs...)   catch;  nothing  end
+    M = try GetSymbolicDerivative(F, m, :doublejacobian; kwargs...)   catch E;  
+        verbose && (@warn "Unable to compute symbolic derivative of $F, falling back to ForwardDiff due to $E.")
+        nothing
+    end
     if isnothing(M)
-        verbose && (@warn "Unable to compute symbolic derivative of $F, falling back to ForwardDiff.")
         GetDoubleJac(Val(:ForwardDiff), F, m, f, args...)
     else M end
 end

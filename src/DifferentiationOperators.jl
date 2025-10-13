@@ -20,12 +20,12 @@ GetMatrixJac(ADmode::Symbol, args...; kwargs...) = GetMatrixJac(Val(ADmode), arg
 
 
 # ForwardDiff as standard
-GetDeriv(F::Function, args...; kwargs...) = GetDeriv(Val(:ForwardDiff), F, args...; kwargs...)
-GetGrad(F::Function, args...; kwargs...) = GetGrad(Val(:ForwardDiff), F, args...; kwargs...)
-GetJac(F::Function, args...; kwargs...) = GetJac(Val(:ForwardDiff), F, args...; kwargs...)
-GetHess(F::Function, args...; kwargs...) = GetHess(Val(:ForwardDiff), F, args...; kwargs...)
-GetDoubleJac(F::Function, args...; kwargs...) = GetDoubleJac(Val(:ForwardDiff), F, args...; kwargs...)
-GetMatrixJac(F::Function, args...; kwargs...) = GetMatrixJac(Val(:ForwardDiff), F, args...; kwargs...)
+GetDeriv(F::Function, args...; ADmode::Val=Val(:ForwardDiff), kwargs...) = GetDeriv(ADmode, F, args...; kwargs...)
+GetGrad(F::Function, args...; ADmode::Val=Val(:ForwardDiff), kwargs...) = GetGrad(ADmode, F, args...; kwargs...)
+GetJac(F::Function, args...; ADmode::Val=Val(:ForwardDiff), kwargs...) = GetJac(ADmode, F, args...; kwargs...)
+GetHess(F::Function, args...; ADmode::Val=Val(:ForwardDiff), kwargs...) = GetHess(ADmode, F, args...; kwargs...)
+GetDoubleJac(F::Function, args...; ADmode::Val=Val(:ForwardDiff), kwargs...) = GetDoubleJac(ADmode, F, args...; kwargs...)
+GetMatrixJac(F::Function, args...; ADmode::Val=Val(:ForwardDiff), kwargs...) = GetMatrixJac(ADmode, F, args...; kwargs...)
 
 
 """
@@ -273,10 +273,10 @@ GetMatrixJac!(ADmode::Val, args...; kwargs...) = _GetMatrixJac!(ADmode, args...;
 
 
 # ForwardDiff as standard
-GetGrad!(F::Function, args...; kwargs...) = GetGrad!(Val(:ForwardDiff), F, args...; kwargs...)
-GetJac!(F::Function, args...; kwargs...) = GetJac!(Val(:ForwardDiff), F, args...; kwargs...)
-GetHess!(F::Function, args...; kwargs...) = GetHess!(Val(:ForwardDiff), F, args...; kwargs...)
-GetMatrixJac!(F::Function, args...; kwargs...) = GetMatrixJac!(Val(:ForwardDiff), F, args...; kwargs...)
+GetGrad!(F::Function, args...; ADmode::Val=Val(:ForwardDiff), kwargs...) = GetGrad!(ADmode, F, args...; kwargs...)
+GetJac!(F::Function, args...; ADmode::Val=Val(:ForwardDiff), kwargs...) = GetJac!(ADmode, F, args...; kwargs...)
+GetHess!(F::Function, args...; ADmode::Val=Val(:ForwardDiff), kwargs...) = GetHess!(ADmode, F, args...; kwargs...)
+GetMatrixJac!(F::Function, args...; ADmode::Val=Val(:ForwardDiff), kwargs...) = GetMatrixJac!(ADmode, F, args...; kwargs...)
 
 
 # Evaluation of differentation operations into pre-specified arrays for functions which are themselves out-of-place

@@ -253,10 +253,10 @@ _GetHess(ADmode::Val{:ForwardDiff}; kwargs...) = ForwardDiff.hessian
 ##
 
 # Error messages for unloaded backends
-_GetDeriv(ADmode::Val{T}; kwargs...) where T = throw("Backend $T does not exist or is not currently loaded.")
-_GetGrad(ADmode::Val{T}; kwargs...) where T = throw("Backend $T does not exist or is not currently loaded.")
-_GetJac(ADmode::Val{T}; kwargs...) where T = throw("Backend $T does not exist or is not currently loaded.")
-_GetHess(ADmode::Val{T}; kwargs...) where T = throw("Backend $T does not exist or is not currently loaded.")
+_GetDeriv(ADmode; kwargs...) = throw("Backend $ADmode does not exist or is not currently loaded. See currently loaded backends with diff_backends().")
+_GetGrad(ADmode; kwargs...) = throw("Backend $ADmode does not exist or is not currently loaded. See currently loaded backends with diff_backends().")
+_GetJac(ADmode; kwargs...) = throw("Backend $ADmode does not exist or is not currently loaded. See currently loaded backends with diff_backends().")
+_GetHess(ADmode; kwargs...) = throw("Backend $ADmode does not exist or is not currently loaded. See currently loaded backends with diff_backends().")
 # _GetMatrixJac and _GetDoubleJac already implemented in terms of _GetJac
 
 
@@ -369,10 +369,10 @@ _GetHess!(ADmode::Symbol; kwargs...) = _GetHess!(Val(ADmode); kwargs...)
 _GetMatrixJac!(ADmode::Symbol; kwargs...) = _GetMatrixJac!(Val(ADmode); kwargs...)
 
 
-_GetGrad!(ADmode::Val{T}; kwargs...) where T = throw("Backend $T does not exist or is not currently loaded. See currently loaded backends with diff_backends().")
-_GetJac!(ADmode::Val{T}; kwargs...) where T = throw("Backend $T does not exist or is not currently loaded. See currently loaded backends with diff_backends().")
-_GetHess!(ADmode::Val{T}; kwargs...) where T = throw("Backend $T does not exist or is not currently loaded. See currently loaded backends with diff_backends().")
-_GetMatrixJac!(ADmode::Val{T}; kwargs...) where T = throw("Backend $T does not exist or is not currently loaded. See currently loaded backends with diff_backends().")
+_GetGrad!(ADmode; kwargs...) = throw("Backend $ADmode does not exist or is not currently loaded. See currently loaded backends with diff_backends().")
+_GetJac!(ADmode; kwargs...) = throw("Backend $ADmode does not exist or is not currently loaded. See currently loaded backends with diff_backends().")
+_GetHess!(ADmode; kwargs...) = throw("Backend $ADmode does not exist or is not currently loaded. See currently loaded backends with diff_backends().")
+_GetMatrixJac!(ADmode; kwargs...) = throw("Backend $ADmode does not exist or is not currently loaded. See currently loaded backends with diff_backends().")
 
 
 # Fall back to ForwardDiff as standard

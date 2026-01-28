@@ -11,11 +11,11 @@ using SafeTestsets
     Mat = reshape(ForwardDiff.jacobian(vec∘Metric3, [5,10,15.]), 3, 3, 3)
     Djac = reshape(ForwardDiff.jacobian(p->vec(ForwardDiff.jacobian(x->[exp(x[1])*sin(x[2]), cosh(x[2])*x[1]*x[2]],p)), [5,10.]), 2,2,2)
 
-    function MyTest(ADmode::Symbol; atol::Real=2e-5, kwargs...)
+    function MyTest(ADmode::Union{Symbol,Val}; atol::Real=2e-5, kwargs...)
         Grad, Jac, Hess = GetGrad(ADmode; kwargs...), GetJac(ADmode; kwargs...), GetHess(ADmode; kwargs...)
         MatrixJac = GetMatrixJac(ADmode; order=8, kwargs...)
 
-        @test ADmode ∈ diff_backends()
+        @test ADmode ∈ diff_backends() || ADmode isa Val
 
         @test isapprox(Grad(x->x[1]^2 + exp(x[2]), [5,10.]), X; atol=atol)
         @test isapprox(Jac(x->[x[1]^2, exp(x[2])], [5,10.]), Y; atol=atol)
@@ -56,7 +56,7 @@ end
     Z = ForwardDiff.hessian(x->x[1]^2 + exp(x[2]) + x[1]*x[2], [5,10.])
     Mat = reshape(ForwardDiff.jacobian(vec∘Metric3, [5,10,15.]), 3, 3, 3)
 
-    function MyInplaceTest(ADmode::Symbol; atol::Real=2e-5, kwargs...)
+    function MyInplaceTest(ADmode::Union{Symbol,Val}; atol::Real=2e-5, kwargs...)
         Grad! = GetGrad!(ADmode, x->x[1]^2 + exp(x[2]); kwargs...)
         Jac! = GetJac!(ADmode, x->[x[1]^2, exp(x[2])]; kwargs...)
         Hess! = GetHess!(ADmode, x->x[1]^2 + exp(x[2]) + x[1]*x[2]; kwargs...)

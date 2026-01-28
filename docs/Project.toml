@@ -1,3 +1,4 @@
 [deps]
 DerivableFunctionsBase = "2a74400c-0885-457e-a858-e4f63fac11e2"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"

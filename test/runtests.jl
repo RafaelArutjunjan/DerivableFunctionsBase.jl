@@ -13,7 +13,7 @@ using SafeTestsets
 
     function MyTest(ADmode::Union{Symbol,Val}; atol::Real=2e-5, kwargs...)
         Grad, Jac, Hess = GetGrad(ADmode; kwargs...), GetJac(ADmode; kwargs...), GetHess(ADmode; kwargs...)
-        MatrixJac = GetMatrixJac(ADmode; order=8, kwargs...)
+        MatrixJac = GetMatrixJac(ADmode; kwargs...)
 
         @test ADmode ∈ diff_backends() || ADmode isa Val
 
@@ -23,20 +23,20 @@ using SafeTestsets
         @test maximum(abs.(MatrixJac(Metric3, [5,10,15.]) - Mat)) < atol
     end
     
-    using FiniteDiff, FiniteDifferences, ReverseDiff, Zygote
+    using FiniteDiff, FiniteDifferences, ReverseDiff, DifferentiationInterface, Zygote
 
-    for ADmode ∈ [:ForwardDiff, :FiniteDifferences, :ReverseDiff, :Zygote]
+    for ADmode ∈ [:ForwardDiff, :FiniteDifferences, :ReverseDiff, :Zygote, Val(AutoForwardDiff())]
         MyTest(ADmode)
     end
     MyTest(:FiniteDiff; atol=0.2)
 
 
-    function TestDoubleJac(ADmode::Symbol; atol::Real=1e-5, kwargs...)
-        DoubleJac = GetDoubleJac(ADmode; order=8, kwargs...)
+    function TestDoubleJac(ADmode::Union{Symbol,Val}; atol::Real=1e-5, kwargs...)
+        DoubleJac = GetDoubleJac(ADmode; kwargs...)
         maximum(abs.(DoubleJac(x->[exp(x[1])*sin(x[2]), cosh(x[2])*x[1]*x[2]], [5,10.]) - Djac)) < atol
     end
 
-    for ADmode ∈ [:ForwardDiff]
+    for ADmode ∈ [:ForwardDiff, Val(AutoForwardDiff())]
         @test TestDoubleJac(ADmode)
     end
     # Zygote does not support mutating arrays
@@ -60,7 +60,7 @@ end
         Grad! = GetGrad!(ADmode, x->x[1]^2 + exp(x[2]); kwargs...)
         Jac! = GetJac!(ADmode, x->[x[1]^2, exp(x[2])]; kwargs...)
         Hess! = GetHess!(ADmode, x->x[1]^2 + exp(x[2]) + x[1]*x[2]; kwargs...)
-        MatrixJac! = GetMatrixJac!(ADmode, Metric3; order=8, kwargs...)
+        MatrixJac! = GetMatrixJac!(ADmode, Metric3; kwargs...)
 
         Xres = similar(X);  Yres = similar(Y);  Zres = similar(Z);  Matres = similar(Mat)
 
@@ -70,9 +70,9 @@ end
         MatrixJac!(Matres, [5,10,15.]);   @test maximum(abs.(Matres - Mat)) < atol
     end
 
-    using FiniteDiff, FiniteDifferences, ReverseDiff, Zygote
+    using FiniteDiff, FiniteDifferences, ReverseDiff, DifferentiationInterface, Zygote
 
-    for ADmode ∈ [:ForwardDiff, :FiniteDifferences, :ReverseDiff, :Zygote]
+    for ADmode ∈ [:ForwardDiff, :FiniteDifferences, :ReverseDiff, :Zygote, Val(AutoForwardDiff())]
         MyInplaceTest(ADmode)
     end
     MyInplaceTest(:FiniteDiff; atol=0.2)

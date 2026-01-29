@@ -1,7 +1,7 @@
 
 using SafeTestsets
 
-@safetestset "Bare Differentiation Operator Backends (out-of-place)" begin
+@safetestset "Bare and Wrapped Differentiation Operator Backends (out-of-place)" begin
     using DerivableFunctionsBase, Test, ForwardDiff
     Metric3(x) = [sinh(x[3]) exp(x[1])*sin(x[2]) 0; 0 cosh(x[2]) cos(x[2])*x[3]*x[2]; exp(x[2]) cos(x[3])*x[1]*x[2] 1.]
 
@@ -17,10 +17,17 @@ using SafeTestsets
 
         @test ADmode ∈ diff_backends() || ADmode isa Val
 
+        ## Bare
         @test isapprox(Grad(x->x[1]^2 + exp(x[2]), [5,10.]), X; atol=atol)
         @test isapprox(Jac(x->[x[1]^2, exp(x[2])], [5,10.]), Y; atol=atol)
         @test isapprox(Hess(x->x[1]^2 + exp(x[2]) + x[1]*x[2], [5,10.]), Z; atol=atol)
         @test maximum(abs.(MatrixJac(Metric3, [5,10,15.]) - Mat)) < atol
+
+        ## Test non-bare version
+        @test isapprox(GetGrad(ADmode, x->x[1]^2 + exp(x[2]))([5,10.]), X; atol=atol)
+        @test isapprox(GetJac(ADmode, x->[x[1]^2, exp(x[2])])([5,10.]), Y; atol=atol)
+        @test isapprox(GetHess(ADmode, x->x[1]^2 + exp(x[2]) + x[1]*x[2])([5,10.]), Z; atol=atol)
+        @test maximum(abs.(GetMatrixJac(ADmode, Metric3)([5,10,15.]) - Mat)) < atol
     end
     
     using FiniteDiff, FiniteDifferences, ReverseDiff, DifferentiationInterface, Zygote
@@ -34,6 +41,8 @@ using SafeTestsets
     function TestDoubleJac(ADmode::Union{Symbol,Val}; atol::Real=1e-5, kwargs...)
         DoubleJac = GetDoubleJac(ADmode; kwargs...)
         maximum(abs.(DoubleJac(x->[exp(x[1])*sin(x[2]), cosh(x[2])*x[1]*x[2]], [5,10.]) - Djac)) < atol
+        # Non-bare
+        maximum(abs.(GetDoubleJac(ADmode, x->[exp(x[1])*sin(x[2]), cosh(x[2])*x[1]*x[2]])([5,10.]) - Djac)) < atol
     end
 
     for ADmode ∈ [:ForwardDiff, Val(AutoForwardDiff())]
@@ -47,7 +56,7 @@ using SafeTestsets
 end
 
 
-@safetestset "Bare Differentiation Operator Backends (in-place)" begin
+@safetestset "Bare and Wrapped Differentiation Operator Backends (in-place)" begin
     using DerivableFunctionsBase, Test, ForwardDiff
     Metric3(x) = [sinh(x[3]) exp(x[1])*sin(x[2]) 0; 0 cosh(x[2]) cos(x[2])*x[3]*x[2]; exp(x[2]) cos(x[3])*x[1]*x[2] 1.]
 
@@ -64,6 +73,15 @@ end
 
         Xres = similar(X);  Yres = similar(Y);  Zres = similar(Z);  Matres = similar(Mat)
 
+        # Bare
+        GetGrad!(ADmode)(Xres, x->x[1]^2 + exp(x[2]), [5,10.]);   @test isapprox(Xres, X; atol=atol)
+        GetJac!(ADmode)(Yres, x->[x[1]^2, exp(x[2])], [5,10.]);   @test isapprox(Yres, Y; atol=atol)
+        GetHess!(ADmode)(Zres, x->x[1]^2 + exp(x[2]) + x[1]*x[2], [5,10.]);   @test isapprox(Zres, Z; atol=atol)
+        GetMatrixJac!(ADmode)(Matres, Metric3, [5,10,15.]);   @test maximum(abs.(Matres - Mat)) < atol
+
+        fill!(Xres, 0.0);   fill!(Yres, 0.0);   fill!(Zres, 0.0);   fill!(Matres, 0.0)
+
+        # Non-bare
         Grad!(Xres, [5,10.]);   @test isapprox(Xres, X; atol=atol)
         Jac!(Yres, [5,10.]);   @test isapprox(Yres, Y; atol=atol)
         Hess!(Zres, [5,10.]);   @test isapprox(Zres, Z; atol=atol)

@@ -23,7 +23,7 @@ _GetJac!(ADmode::ADTypes.AbstractADType, Prep::DifferentiationInterface.Prep; kw
 _GetHess!(ADmode::ADTypes.AbstractADType, Prep::DifferentiationInterface.Prep; kwargs...) = (H,Func::Function,p;Kwargs...) -> DifferentiationInterface.hessian!(Func, H, Prep, ADmode, p; kwargs...)
 # _GetDoubleJac!(ADmode::ADTypes.AbstractADType, Prep::DifferentiationInterface.Prep; kwargs...) = (J,Func::Function,p;Kwargs...) -> DifferentiationInterface.jacobian!(Func, J, Prep, ADmode, p; kwargs...)
 
-
+### Rewriting methods from Base package here
 _GetDeriv(ADmode::Val{T}; kwargs...) where T = T isa ADTypes.AbstractADType ? _GetDeriv(T; kwargs...) : throw("Do not know how to handle $T. Backend possibly not loaded yet.")
 _GetGrad(ADmode::Val{T}; kwargs...) where T = T isa ADTypes.AbstractADType ? _GetGrad(T; kwargs...) : throw("Do not know how to handle $T. Backend possibly not loaded yet.")
 _GetJac(ADmode::Val{T}; kwargs...) where T = T isa ADTypes.AbstractADType ? _GetJac(T; kwargs...) : throw("Do not know how to handle $T. Backend possibly not loaded yet.")

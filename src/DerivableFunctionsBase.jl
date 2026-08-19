@@ -8,7 +8,7 @@ using Symbolics, SymbolicUtils
 
 # Add graceful errors by implementing _GetGrad(::Val) methods
 
-const SymbolicScalar = Union{Num, SymbolicUtils.BasicSymbolic}
+const SymbolicScalar = Union{Num, <:SymbolicUtils.BasicSymbolic}
 
 include("Utils.jl")
 export GetArgLength

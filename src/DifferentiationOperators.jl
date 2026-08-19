@@ -402,20 +402,30 @@ function _ConsistencyCheck(Fexpr, var, deriv::Val{T}) where T
     if T ∉ DerivTypes
         throw("Invalid deriv type: $T.")
     else
-        throw("Got :$T but Fexpr=$(typeof(Fexpr)) and arg=$(typeof(var)).")
+        throw("Got deriv=:$T but Fexpr=$(typeof(Fexpr)) and arg=$(typeof(var)).")
     end
 end
 
 """
 Executes symbolic derivative as specified by `deriv::Symbol`.
 """
-function SymbolicPassthrough(Fexpr::Union{<:AbstractArray{<:SymbolicScalar},<:SymbolicScalar}, var::Union{<:AbstractVector{<:SymbolicScalar},<:SymbolicScalar}, deriv::Symbol=:jacobian; simplify::Bool=true)
-    _ConsistencyCheck(Fexpr, var, deriv)
+function SymbolicPassthrough(Fexpr::Union{<:AbstractArray{<:SymbolicScalar},<:SymbolicScalar}, var::Union{<:AbstractVector{<:SymbolicScalar},<:SymbolicScalar}, deriv::Symbol=:jacobian; simplify::Bool=true, Strict::Bool=false, verbose::Bool=true)
+    if Strict
+        _ConsistencyCheck(Fexpr, var, deriv)
+    else
+        if verbose
+            try
+                _ConsistencyCheck(Fexpr, var, deriv)
+            catch E;
+                @warn "DerivableFunctionsBase.SymbolicPassThrough: $E"
+            end
+        end
+    end
 
-    SymbolicDoubleJacobian(V::AbstractVector{<:SymbolicScalar}, z::SymbolicScalar; simplify::Bool=true) = SymbolicDoubleJacobian(V, [z]; simplify=simplify)
-    SymbolicDoubleJacobian(V::AbstractVector{<:SymbolicScalar}, z::AbstractVector{<:SymbolicScalar}; simplify::Bool=true) = SymbolicMatrixJacobian(Symbolics.jacobian(V,z),z; simplify=simplify)
-    SymbolicMatrixJacobian(M::AbstractArray{<:SymbolicScalar}, z::SymbolicScalar; simplify::Bool=true) = SymbolicMatrixJacobian(M, [z]; simplify=simplify)
-    function SymbolicMatrixJacobian(M::AbstractArray{<:SymbolicScalar}, z::AbstractVector{<:SymbolicScalar}; simplify::Bool=true)
+    SymbolicDoubleJacobian(V::AbstractVector, z::SymbolicScalar; simplify::Bool=true) = SymbolicDoubleJacobian(V, [z]; simplify=simplify)
+    SymbolicDoubleJacobian(V::AbstractVector, z::AbstractVector{<:SymbolicScalar}; simplify::Bool=true) = SymbolicMatrixJacobian(Symbolics.jacobian(V,z),z; simplify=simplify)
+    SymbolicMatrixJacobian(M::AbstractArray, z::SymbolicScalar; simplify::Bool=true) = SymbolicMatrixJacobian(M, [z]; simplify=simplify)
+    function SymbolicMatrixJacobian(M::AbstractArray, z::AbstractVector{<:SymbolicScalar}; simplify::Bool=true)
         reshape(Symbolics.jacobian(vec(M), z; simplify=simplify), size(M)..., length(z))
     end
 
@@ -443,7 +453,8 @@ function GetSymbolicDerivative(F::Function, inputdim::Int=GetArgLength(F), deriv
 end
 GetSymbolicDerivative(F::Function, deriv::Symbol; kwargs...) = GetSymbolicDerivative(F, GetArgLength(F), deriv; kwargs...)
 
-function GetSymbolicDerivative(Fexpr::Union{<:AbstractArray{<:SymbolicScalar},<:SymbolicScalar}, var::Union{<:AbstractVector{<:SymbolicScalar},<:SymbolicScalar}, deriv::Symbol=:jacobian; simplify::Bool=true, inplace::Bool=false, parallel::Bool=false, kwargs...)
-    derivative = SymbolicPassthrough(Fexpr, var, deriv; simplify=simplify)
-    Builder(derivative, var; parallel=parallel, inplace=inplace, kwargs...)
+function GetSymbolicDerivative(Fexpr::Union{<:AbstractArray{<:SymbolicScalar},<:SymbolicScalar}, var::Union{<:AbstractVector{<:SymbolicScalar},<:SymbolicScalar}, deriv::Symbol=:jacobian; 
+                    simplify::Bool=true, inplace::Bool=false, parallel::Bool=false, Strict::Bool=false, verbose::Bool=true, kwargs...)
+    derivative = SymbolicPassthrough(Fexpr, var, deriv; simplify, Strict, verbose)
+    Builder(derivative, var; parallel, inplace, kwargs...)
 end
